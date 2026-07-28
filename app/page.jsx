@@ -327,8 +327,7 @@ async function submitLead(payload) {
     body: JSON.stringify({
       email: payload.email,
       org: payload.org,
-      total: payload.total,
-      tier: payload.tier,
+      answers: payload.answers,
     }),
   });
   if (!res.ok) throw new Error("submit failed");
@@ -612,7 +611,7 @@ function Report({ answers, onRestart }) {
     setBusy(true);
     setFailed(false);
     try {
-      await submitLead({ email, org, total, tier: tier.code });
+      await submitLead({ email, org, answers });
       setSent(true);
     } catch {
       setFailed(true);
