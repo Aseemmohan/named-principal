@@ -60,7 +60,7 @@ export async function POST(request) {
       html: buildEmailHtml({
         analysis,
         org: cleanOrg,
-        reportUrl: `${SITE}/Agent_of_Record_Twelve_Controls.pdf`,
+        reportUrl: `${SITE}/Named_Principal_Twelve_Controls.pdf`,
         contactEmail: CONTACT_EMAIL,
       }),
       text: buildEmailText({ analysis }),
