@@ -18,7 +18,7 @@ import React, { useState, useMemo, useEffect, useRef } from "react";
  */
 
 /* Change these two lines to rebrand. Nothing else references the name. */
-const BRAND = "Agent of Record";
+const BRAND = "Named Principal";
 const OWNER = "Aseem Mohan";
 
 /* ============================ CONTENT ============================ */
@@ -81,7 +81,7 @@ const DOMAINS = [
       mas: "AI lifecycle management",
       nist: "MEASURE",
       iso: "Clause 9 — Performance evaluation",
-      eu: "Article 12 — Record-keeping",
+      eu: "Article 12 — s-keeping",
     },
   },
   {
