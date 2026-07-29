@@ -748,7 +748,8 @@ function Report({ answers, onRestart }) {
               </button>
             </div>
             <p className="agr-note">
-              We store your email and your scores. Nothing else. No agent names, no system details.
+              Nothing is sent anywhere until you ask for the report. No account needed.{" "}
+              <a href="/privacy" style={{ color: "var(--indigo)" }}>Privacy notice</a>
             </p>
             {failed && (
               <p className="agr-note" style={{ color: "var(--alert)" }}>
@@ -846,7 +847,8 @@ export default function AgentGovernanceReadiness() {
               Begin the assessment
             </button>
             <p className="agr-note">
-              Nothing is sent anywhere until you ask for the report. No account needed.
+              We store your email and your scores. Nothing else. No agent names, no system details.{" "}
+              <a href="/privacy" style={{ color: "var(--indigo)" }}>Privacy notice</a>
             </p>
           </div>
         )}
