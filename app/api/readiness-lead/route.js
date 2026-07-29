@@ -10,7 +10,7 @@
 
 import { createClient } from "@supabase/supabase-js";
 import { Resend } from "resend";
-import { analyse, buildEmailHtml, buildEmailText } from "../../../lib/report";
+import { analyse, encodeAnswers, buildEmailHtml, buildEmailText } from "../../../lib/report";
 
 const CONTACT_EMAIL = process.env.CONTACT_EMAIL || "hello@example.com";
 const FROM = process.env.EMAIL_FROM || "Agent of Record <onboarding@resend.dev>";
@@ -52,6 +52,9 @@ export async function POST(request) {
     }
 
     const resend = new Resend(process.env.RESEND_API_KEY);
+    const code = encodeAnswers(answers);
+    const reportUrl = `${SITE}/report?s=${code}${cleanOrg ? `&o=${encodeURIComponent(cleanOrg)}` : ""}`;
+
     const { error: mailError } = await resend.emails.send({
       from: FROM,
       to: cleanEmail,
@@ -60,10 +63,11 @@ export async function POST(request) {
       html: buildEmailHtml({
         analysis,
         org: cleanOrg,
-        reportUrl: `${SITE}/Named_Principal_Twelve_Controls.pdf`,
+        reportUrl,
+        pdfUrl: `${SITE}/Named_Principal_Twelve_Controls.pdf`,
         contactEmail: CONTACT_EMAIL,
       }),
-      text: buildEmailText({ analysis }),
+      text: buildEmailText({ analysis, reportUrl }),
     });
 
     if (mailError) {
