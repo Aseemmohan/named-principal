@@ -380,6 +380,34 @@ const CSS = `
 }
 .agr-bar b { color: var(--ink); font-weight: 600; }
 .agr-bar span { white-space: nowrap; }
+.agr-navlink {
+  display:inline-flex; align-items:center; gap:7px;
+  border:1px solid var(--indigo); color:var(--indigo);
+  padding:7px 13px; text-decoration:none; border-radius:2px;
+  font-family:'IBM Plex Mono',monospace; font-size:10px;
+  letter-spacing:0.1em; text-transform:uppercase; font-weight:600;
+  transition:background 130ms ease, color 130ms ease;
+}
+.agr-navlink:hover { background:var(--indigo); color:#fff; }
+
+.agr-cross {
+  margin-top:52px; border:1px solid var(--rule); background:var(--surface);
+  padding:26px 28px; max-width:620px;
+  transition:border-color 140ms ease, box-shadow 140ms ease;
+}
+.agr-cross:hover { border-color:var(--indigo); box-shadow:0 2px 14px rgba(38,48,122,0.07); }
+.agr-cross h3 {
+  font-family:'Archivo',sans-serif; font-size:1.18rem; font-weight:600;
+  letter-spacing:-0.015em; margin:9px 0 9px;
+}
+.agr-cross p { color:var(--slate); font-size:0.93rem; margin:0 0 20px; }
+.agr-cross-btn {
+  display:inline-block; border:1px solid var(--indigo); color:var(--indigo);
+  padding:12px 22px; text-decoration:none; font-weight:600;
+  font-size:0.92rem; border-radius:2px;
+  transition:background 130ms ease, color 130ms ease;
+}
+.agr-cross-btn:hover { background:var(--indigo); color:#fff; }
 
 /* --- hero --- */
 .agr-hero { padding: 68px 0 52px; max-width: 760px; }
@@ -750,6 +778,16 @@ function Report({ answers, onRestart }) {
             <p className="agr-note">
               Nothing is sent anywhere until you ask for the report. No account needed.{" "}
               <a href="/privacy" style={{ color: "var(--indigo)" }}>Privacy notice</a>
+             <div className="agr-cross">
+              <p className="agr-eyebrow" style={{ marginBottom: 0 }}>For a single agent</p>
+              <h3>Deploying one specific agent?</h3>
+              <p>
+                Nine questions about that agent returns its risk tier, the controls that become
+                mandatory before deployment, the OWASP agentic risks it exposes you to, and the
+                provisions that attach. Nothing leaves your browser.
+              </p>
+              <a className="agr-cross-btn" href="/agent">Open the agent risk profiler →</a>
+            </div>
             </p>
             {failed && (
               <p className="agr-note" style={{ color: "var(--alert)" }}>
@@ -810,7 +848,7 @@ export default function AgentGovernanceReadiness() {
       <div className="agr-shell">
         <div className="agr-bar">
           <span><b>{BRAND}</b> — Readiness assessment</span>
-          <span>v1.0 · July 2026</span>
+          <a className="agr-navlink" href="/agent">Agent risk profiler →</a>
         </div>
 
         {stage === "intro" && (

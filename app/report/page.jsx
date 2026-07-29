@@ -262,7 +262,14 @@ function ReportBody() {
           {tier.sequence.map((s, i) => <li key={i}>{s}</li>)}
         </ol>
       </section>
-
+<div className="rp-cta" style={{ marginTop: 44 }}>
+        <h2>Deploying a specific agent?</h2>
+        <p>
+          The risk profiler asks nine questions about one agent and returns its risk tier, which controls
+          become mandatory, and which OWASP agentic risks it exposes you to.
+        </p>
+        <a className="rp-btn" href="/agent">Open the agent risk profiler</a>
+      </div>
       <div className="rp-cta">
         <h2>The twelve-control reference document</h2>
         <p>
