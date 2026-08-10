@@ -15,6 +15,8 @@
  * "trust our score" into "here is exactly how the score is computed."
  */
 
+import PublicNav from "../../components/PublicNav";
+
 export const metadata = {
   title: "Methodology",
   description: "How Named Principal's scoring actually works — the formulas, the override rules, the sources, and the version history.",
@@ -158,16 +160,8 @@ export default function Methodology() {
   return (
     <div className="mth">
       <style>{CSS}</style>
+      <PublicNav current="/methodology" />
       <div className="mth-shell">
-        <div className="mth-bar">
-          <span><b>Named Principal</b> — Methodology</span>
-          <span>
-            <a href="/">Assessment</a>
-            <a href="/controls">Control library</a>
-            <a href="/agent">Risk profiler</a>
-          </span>
-        </div>
-
         <div className="mth-hero">
           <p className="mth-eyebrow">How the scoring actually works</p>
           <h1>Every number on this site is inspectable.</h1>

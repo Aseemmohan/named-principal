@@ -2,6 +2,7 @@
 
 import React, { useState, useMemo, useRef } from "react";
 import { FACTORS, TIERS, CONTROLS, assess, encodeProfilerAnswers } from "../../lib/riskModel";
+import PublicNav from "../../components/PublicNav";
 
 /**
  * Agent Risk Profiler — Named Principal
@@ -166,7 +167,7 @@ const CSS = `
 }
 @media print {
   .ap { background:#fff; }
-  .ap-head, .ap-name, .ap-q, .ap-go, .ap-live, .ap-bar { display:none; }
+  .ap-head, .ap-name, .ap-q, .ap-go, .ap-live, .pubnav { display:none; }
   .ap-shell { max-width:none; padding:0; }
   .ap-rec { border:1px solid #999; margin-top:0; }
   .ap-block { break-inside:avoid; }
@@ -224,12 +225,8 @@ export default function AgentRiskProfiler() {
   return (
     <div className="ap">
       <style>{CSS}</style>
+      <PublicNav current="/agent" />
       <div className="ap-shell">
-        <div className="ap-bar">
-          <span><b>Named Principal</b> — Agent risk profiler</span>
-          <span><a href="/">Assessment</a></span>
-        </div>
-
         <div className="ap-head">
           <p className="ap-eyebrow">Nine questions · before you deploy</p>
           <h1>What controls does this agent actually need?</h1>

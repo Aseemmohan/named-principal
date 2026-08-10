@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useMemo, useEffect, useRef } from "react";
+import PublicNav from "../components/PublicNav";
 
 /**
  * Agent Governance Readiness Assessment — Named Principal
@@ -957,12 +958,8 @@ export default function AgentGovernanceReadiness() {
   return (
     <div className="agr">
       <style>{CSS}</style>
+      <PublicNav current="/" />
       <div className="agr-shell">
-        <div className="agr-bar">
-          <span><b>{BRAND}</b> — AI agent governance</span>
-          <a className="agr-navlink" href="/agent">Agent risk profiler →</a>
-        </div>
-
         {stage === "intro" && (
           <>
             <div className="agr-hero agr-fade">

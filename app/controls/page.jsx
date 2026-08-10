@@ -1,4 +1,5 @@
 import { CONTROL_LIBRARY, TIER_LABELS } from "../../lib/controlLibrary";
+import PublicNav from "../../components/PublicNav";
 
 /**
  * Control library — Named Principal
@@ -103,16 +104,8 @@ export default function ControlLibraryPage() {
   return (
     <div className="ctl-page">
       <style>{CSS}</style>
+      <PublicNav current="/controls" />
       <div className="ctl-shell">
-        <div className="ctl-bar">
-          <span><b>Named Principal</b> — Control library</span>
-          <span>
-            <a href="/">Assessment</a>
-            <a href="/methodology">Methodology</a>
-            <a href="/agent">Risk profiler</a>
-          </span>
-        </div>
-
         <div className="ctl-hero">
           <p className="ctl-eyebrow">The twelve controls, in full</p>
           <h1>What each control actually requires.</h1>
