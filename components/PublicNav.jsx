@@ -30,6 +30,7 @@ const LINKS = [
   { href: "/agent", label: "Agent Risk Profiler" },
   { href: "/methodology", label: "Methodology" },
   { href: "/controls", label: "Control Library" },
+  { href: "/pilot", label: "Pilot" },
   { href: "/estate", label: "Agent Estate" },
 ];
 

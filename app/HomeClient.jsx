@@ -991,7 +991,7 @@ export default function AgentGovernanceReadiness() {
                 <button className="agr-cta" onClick={startAssessment}>
                   Assess your governance readiness
                 </button>
-                <a className="agr-cta ghost" href={`mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent("AI agent governance — pilot enquiry")}`}>
+                <a className="agr-cta ghost" href="/pilot">
                   Talk to us about a pilot
                 </a>
               </div>
