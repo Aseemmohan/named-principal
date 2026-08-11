@@ -34,6 +34,7 @@ const LINKS = [
   { href: "/pilot", label: "Pilot" },
   { href: "/estate", label: "Agent Estate" },
   { href: "/privacy", label: "Privacy" },
+  { href: "/security", label: "Security" },
 ];
 
 const STYLE = `
