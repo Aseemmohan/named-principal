@@ -156,7 +156,7 @@ export default function PilotPage() {
             conversation with you, against what actually matters for your estate.
           </div>
           <p style={{ marginTop: 16, fontSize: "0.87rem" }}>
-            Not sure what this actually produces? <a href="/sample-passport" style={{ color: "var(--indigo)" }}>See a worked example of an Agent Passport →</a>
+            Not sure what this actually produces? <a href="/sample-passport" style={{ color: "var(--indigo)" }}>See a worked example of an Agent Passport</a> or <a href="/sample-estate" style={{ color: "var(--indigo)" }}>the full sample Estate →</a>
           </p>
         </section>
 

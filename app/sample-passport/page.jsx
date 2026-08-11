@@ -203,7 +203,7 @@ export default function SamplePassportPage() {
         </div>
 
         <div className="spp-foot">
-          <p>© 2026 Aseem Mohan · <a href="/">Assessment</a> · <a href="/methodology">Methodology</a> · <a href="/controls">Control library</a></p>
+          <p>© 2026 Aseem Mohan · <a href="/">Assessment</a> · <a href="/sample-estate">Sample Estate</a> · <a href="/methodology">Methodology</a> · <a href="/controls">Control library</a></p>
         </div>
       </div>
     </div>
