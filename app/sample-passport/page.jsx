@@ -165,7 +165,7 @@ export default function SamplePassportPage() {
         </div>
 
         <h2>Required controls</h2>
-        <p style={{ fontSize: "0.85rem", color: "var(--mute)", margin: "0 0 10px" }}>5 of 6 mandatory controls closed.</p>
+        <p style={{ fontSize: "0.85rem", color: "var(--mute)", margin: "0 0 10px" }}>5 of 7 mandatory controls implemented. One in progress, one missing.</p>
         <div className="spp-card" style={{ padding: 0 }}>
           {CONTROLS.map((c) => (
             <div className="spp-ctl" key={c.ref} style={{ padding: "14px 22px" }}>
@@ -181,10 +181,17 @@ export default function SamplePassportPage() {
 
         <h2>Decision</h2>
         <div className="spp-card">
-          <p style={{ margin: 0, fontSize: "0.9rem" }}>
-            Approved 19 Jul 2026 by Raj Kumar (CISO). Note recorded: "Approved conditional on CRD-01
-            closing within 30 days — tracked, not blocking initial deployment given the low irreversibility
-            of this agent's permitted actions."
+          <p style={{ margin: "0 0 10px", fontSize: "0.9rem" }}>
+            Approved 19 Jul 2026 by Raj Kumar (CISO).
+          </p>
+          <p style={{ margin: 0, fontSize: "0.9rem", color: "var(--slate)" }}>
+            Approval here is gated on two things: a named human principal and a scheduled review
+            date, both set before this decision. Control completion is tracked separately, shown
+            above, and does <em>not</em> block approval by design — requiring 100% closure before
+            approval would make the tool unusable for teams closing controls incrementally rather
+            than all at once. Two controls remain open on this agent: CRD-01 (in progress) and LFC-01
+            (missing, no owner yet). Both stay visible on this record, not hidden by the Approved
+            status.
           </p>
         </div>
 

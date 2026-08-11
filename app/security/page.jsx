@@ -118,14 +118,14 @@ export default function SecurityPage() {
           <div className="sec-card">
             <h3>Row-level security</h3>
             <p>
-              Every database table enforces row-level security — a user's own client can only ever
-              read data belonging to their own organisation. Lead-capture tables (assessment reports,
-              pilot enquiries) have no public write policy at all; writes happen exclusively through a
-              server-side route using a service-role credential the browser never sees.
+              Authenticated client requests are restricted through row-level security policies scoped
+              to the user's organisation. Privileged server-side credentials — used for lead-capture
+              tables like assessment reports and pilot enquiries — are never exposed to the browser and
+              are limited to controlled server routes.
             </p>
           </div>
           <div className="sec-card">
-            <h3>Immutable audit trail</h3>
+            <h3>Append-only audit history</h3>
             <p>
               Every material action inside the authenticated product — a Passport created, a control
               status changed, an approval decision made — is written to an append-only audit log tied
@@ -150,7 +150,7 @@ export default function SecurityPage() {
           <div className="sec-status">
             <div className="sec-status-row"><span>HTTPS everywhere, encryption at rest and in transit</span><span className="sec-pill verify">In place</span></div>
             <div className="sec-status-row"><span>Row-level security on every table</span><span className="sec-pill verify">In place</span></div>
-            <div className="sec-status-row"><span>Immutable audit logging</span><span className="sec-pill verify">In place</span></div>
+            <div className="sec-status-row"><span>Append-only audit logging</span><span className="sec-pill verify">In place</span></div>
             <div className="sec-status-row"><span>Google OAuth sign-in</span><span className="sec-pill verify">In place</span></div>
             <div className="sec-status-row"><span>Independent security audit or penetration test</span><span className="sec-pill signal">Not yet done</span></div>
             <div className="sec-status-row"><span>SOC 2 / ISO 27001 certification</span><span className="sec-pill signal">Not yet pursued</span></div>
