@@ -30,8 +30,10 @@ const LINKS = [
   { href: "/agent", label: "Agent Risk Profiler" },
   { href: "/methodology", label: "Methodology" },
   { href: "/controls", label: "Control Library" },
+  { href: "/examples", label: "Examples" },
   { href: "/pilot", label: "Pilot" },
   { href: "/estate", label: "Agent Estate" },
+  { href: "/privacy", label: "Privacy" },
 ];
 
 const STYLE = `

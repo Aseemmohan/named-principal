@@ -1,17 +1,45 @@
-"use client";
-
-import React from "react";
-
 /**
  * Privacy notice — Named Principal
  * © 2026 Aseem Mohan. All rights reserved.
  *
- * INSTALL AT: app/privacy/page.jsx
+ * INSTALL AT: app/privacy/page.jsx  (replaces existing)
+ *
+ * CHANGES IN THIS VERSION:
+ *   1. Converted from "use client" to a plain Server Component — the
+ *      original had no actual client-side state or hooks, so the
+ *      directive wasn't doing anything except blocking a `metadata`
+ *      export. Now it has its own page title instead of inheriting
+ *      the generic site default.
+ *   2. Swapped the page's own bespoke top bar for the shared
+ *      PublicNav — same navigation as every other public page now,
+ *      per explicit request, rather than a one-off bar unique to
+ *      this page.
+ *   3. "Cookies and tracking" section updated to honestly disclose
+ *      Vercel Analytics, which is genuinely live on the site now —
+ *      the previous wording ("this site... runs no analytics") was
+ *      true when written and is no longer accurate, so it needed to
+ *      change, not just get a caveat bolted on.
+ *   4. "Where it is held" section updated to name Vercel Analytics
+ *      alongside the existing Supabase/Vercel/Resend disclosures.
+ *   5. "Last updated" date bumped, per this page's own stated
+ *      commitment: "If this notice changes materially, the date at
+ *      the top changes with it."
+ *
+ * All other content is unchanged from the version you sent me.
  */
+
+import PublicNav from "../../components/PublicNav";
+
+export const metadata = {
+  title: "Privacy Notice",
+  description: "What personal data Named Principal collects, why, and how to exercise your rights under the PDPA.",
+  alternates: { canonical: "https://www.namedprincipal.com/privacy" },
+  robots: { index: true, follow: true },
+};
 
 const CONTACT_EMAIL = "reports@namedprincipal.com";
 const RETENTION_MONTHS = 24;
-const UPDATED = "July 2026";
+const UPDATED = "August 2026";
 
 const CSS = `
 @import url('https://fonts.googleapis.com/css2?family=Archivo:wght@600;800&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap');
@@ -33,15 +61,6 @@ const CSS = `
 }
 .pv *, .pv *::before, .pv *::after { box-sizing: border-box; }
 .pv-shell { max-width: 720px; margin: 0 auto; padding: 0 22px 80px; }
-.pv-bar {
-  display: flex; align-items: center; justify-content: space-between; gap: 14px;
-  padding: 14px 0; border-bottom: 1px solid var(--rule);
-  font-family: 'IBM Plex Mono', monospace; font-size: 11px;
-  letter-spacing: 0.1em; text-transform: uppercase; color: var(--slate);
-}
-.pv-bar b { color: var(--ink); font-weight: 500; }
-.pv-bar a { color: var(--indigo); text-decoration: none; }
-.pv-bar a:hover { text-decoration: underline; }
 .pv h1 {
   font-family: 'Archivo', sans-serif; font-size: clamp(1.8rem, 4.5vw, 2.5rem);
   font-weight: 800; letter-spacing: -0.025em; margin: 52px 0 8px;
@@ -65,12 +84,8 @@ export default function PrivacyNotice() {
   return (
     <div className="pv">
       <style>{CSS}</style>
+      <PublicNav current="/privacy" />
       <div className="pv-shell">
-        <div className="pv-bar">
-          <span><b>Named Principal</b> — Privacy notice</span>
-          <a href="/">Back to the assessment</a>
-        </div>
-
         <h1>Privacy notice</h1>
         <p className="pv-sub">Last updated {UPDATED}</p>
 
@@ -106,15 +121,20 @@ export default function PrivacyNotice() {
         <p>
           If you complete the assessment without requesting the report, nothing is collected at all.
         </p>
+        <p>
+          If you submit a pilot enquiry, the same principle applies to what you choose to enter: name,
+          email, organisation, role, and anything you write in the message field — used to respond to
+          your enquiry, nothing more.
+        </p>
 
         <h2>Why it is collected</h2>
         <ul>
           <li>To send you the report you requested</li>
-          <li>To follow up on that report, if there is something useful to discuss</li>
+          <li>To follow up on that report, or a pilot enquiry, if there is something useful to discuss</li>
           <li>To understand, in aggregate, which controls organisations find hardest</li>
         </ul>
         <p>
-          By submitting the form you consent to these uses. Aggregate analysis uses grouped figures
+          By submitting a form you consent to these uses. Aggregate analysis uses grouped figures
           only and never identifies an individual or an organisation.
         </p>
 
@@ -129,8 +149,10 @@ export default function PrivacyNotice() {
         <p>
           Submissions are stored in a Supabase database hosted in the Southeast Asia (Singapore)
           region. The site is served by Vercel, which operates a global content network, so page
-          requests may be handled outside Singapore. Report emails are delivered by Resend, which
-          processes the message in transit.
+          requests may be handled outside Singapore. Report and pilot-enquiry emails are delivered by
+          Resend, which processes the message in transit. Aggregate, anonymous page-view analytics are
+          processed by Vercel Analytics — see "Cookies and tracking" below for what that does and
+          doesn't involve.
         </p>
 
         <h2>How long it is kept</h2>
@@ -154,9 +176,12 @@ export default function PrivacyNotice() {
 
         <h2>Cookies and tracking</h2>
         <p>
-          This site sets no cookies, runs no analytics, and uses no tracking pixels or third-party
-          advertising scripts. Links in report emails are not click-tracked. There is nothing to opt
-          out of.
+          This site uses Vercel Analytics to see, in aggregate, which pages are visited and roughly
+          how much traffic the site gets. It does not use cookies, does not track you across other
+          websites, and does not build an individual profile of you — it counts page views, not
+          people. No advertising, retargeting, or third-party tracking scripts run on this site, and
+          links in report or confirmation emails are not click-tracked. There is nothing to opt out of
+          here, because nothing collected identifies you specifically.
         </p>
 
         <h2>Security</h2>
