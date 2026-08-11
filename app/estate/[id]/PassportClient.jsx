@@ -4,13 +4,22 @@
  * Agent Passport — Named Principal
  * © 2026 Aseem Mohan. All rights reserved.
  *
- * INSTALL AT: app/estate/[id]/page.jsx
+ * INSTALL AT: app/estate/[id]/PassportClient.jsx  (replaces the
+ * content of what was app/estate/[id]/page.jsx — file renamed as part
+ * of this fix; see the accompanying note on why)
  *
- * The foundational object (blueprint section 5.1). Approvals, controls
- * and audit history attach here rather than living as disconnected
- * records. The Named Principal invariant is enforced both here (for a
- * clear UX message) and in the database (as the actual backstop) —
- * see the CHECK constraint in sql/schema.sql.
+ * FIXES A REAL GOVERNANCE GAP: "mandatory" controls previously did not
+ * block approval at all -- canApprove only checked named principal +
+ * review date, so a Passport could be Approved with open must-controls
+ * sitting at "missing" indefinitely. That's not a wording problem,
+ * it's the word "mandatory" not meaning anything.
+ *
+ * FIX: a must-control is only closed two ways now -- implemented, or a
+ * genuine recorded exception (reason + expiry + named approver, not
+ * just flipping a dropdown). An expired exception stops counting as
+ * closed. Approval is blocked until every must-control is one or the
+ * other. See isControlClosed() below -- this is the actual gate now,
+ * not just informational text.
  */
 
 import { useEffect, useState, useCallback } from "react";
@@ -28,7 +37,24 @@ const STATUS_LABEL = {
 const STATUS_TONE = {
   draft: "idle", pending_approval: "signal", approved: "verify", rejected: "alert", retired: "idle",
 };
-const CONTROL_STATUS = ["missing", "in_progress", "implemented", "not_applicable"];
+const CONTROL_STATUS = ["missing", "in_progress", "implemented", "not_applicable", "exception"];
+
+/** The actual gate. A control counts as closed only if it's genuinely
+ *  implemented, explicitly not applicable, or has a complete, current
+ *  exception on record -- reason, expiry, and named approver all
+ *  present, and the expiry date hasn't passed. Anything else (missing,
+ *  in_progress, or an exception missing a field, or an expired one)
+ *  does not count, regardless of what the dropdown currently shows. */
+function isControlClosed(c) {
+  if (c.status === "implemented" || c.status === "not_applicable") return true;
+  if (c.status === "exception") {
+    const hasFullRecord = !!c.exception_reason?.trim() && !!c.exception_expiry && !!c.exception_approved_by?.trim();
+    if (!hasFullRecord) return false;
+    const today = new Date(new Date().toDateString());
+    return new Date(c.exception_expiry) >= today;
+  }
+  return false;
+}
 
 export default function PassportDetail() {
   const { id } = useParams();
@@ -97,10 +123,12 @@ export default function PassportDetail() {
   if (!passport) return <Shell org={org}><div className="np-empty"><h2>Not found</h2><p>This Passport doesn't exist, or isn't in your organisation.</p></div></Shell>;
 
   const tierMeta = passport.risk_tier ? TIERS[passport.risk_tier] : null;
-  const canApprove = !!passport.named_principal_name && !!passport.next_review_at;
   const mustControls = controls.filter(c => c.requirement === "must");
   const shouldControls = controls.filter(c => c.requirement === "should");
-  const mustDone = mustControls.filter(c => c.status === "implemented" || c.status === "not_applicable").length;
+  const mustClosedList = mustControls.filter(isControlClosed);
+  const mustOpenList = mustControls.filter(c => !isControlClosed(c));
+  const allMustClosed = mustControls.length === 0 || mustOpenList.length === 0;
+  const canApprove = !!passport.named_principal_name && !!passport.next_review_at && allMustClosed;
 
   return (
     <Shell org={org}>
@@ -116,6 +144,13 @@ export default function PassportDetail() {
 
       {!passport.named_principal_name && passport.lifecycle_status !== "retired" && (
         <div className="np-warn">No named human principal on record. This Passport cannot be approved until one is set.</div>
+      )}
+      {mustOpenList.length > 0 && passport.lifecycle_status !== "retired" && passport.lifecycle_status !== "approved" && (
+        <div className="np-warn">
+          {mustOpenList.length} mandatory control{mustOpenList.length === 1 ? "" : "s"} not yet implemented or excepted
+          ({mustOpenList.map(c => c.control_ref).join(", ")}). This Passport cannot be approved until each is either
+          implemented or has a complete, current exception recorded.
+        </div>
       )}
 
       <h2>Accountability</h2>
@@ -153,22 +188,55 @@ export default function PassportDetail() {
       )}
 
       <h2>Required controls</h2>
-      <p className="np-note">{mustDone} of {mustControls.length} mandatory controls closed.</p>
+      <p className="np-note">
+        {mustClosedList.length} of {mustControls.length} mandatory controls closed
+        (implemented or under a current exception). Closing a control here is what actually
+        unlocks approval — this list isn't just informational.
+      </p>
       <div className="np-card">
         {[...mustControls, ...shouldControls].map(c => (
-          <div key={c.id} style={{ padding: "12px 16px", borderBottom: "1px solid #EDEFF3", display: "grid", gridTemplateColumns: "1fr auto", gap: 8, alignItems: "start" }}>
-            <div>
-              <span style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: 11, color: "var(--mute)" }}>{c.control_ref}{c.requirement === "should" ? " · recommended" : ""}</span>
-              <div style={{ fontSize: "0.88rem" }}>{CONTROLS[c.control_ref]}</div>
-              <input placeholder="Owner email" value={c.owner_email || ""} onChange={e => updateControl(c.id, "owner_email", e.target.value)}
-                style={{ marginTop: 8, marginRight: 8, padding: "6px 8px", fontSize: "0.8rem", border: "1px solid var(--rule)", width: 180 }} />
-              <input type="date" value={c.due_date || ""} onChange={e => updateControl(c.id, "due_date", e.target.value)}
-                style={{ marginTop: 8, padding: "6px 8px", fontSize: "0.8rem", border: "1px solid var(--rule)" }} />
+          <div key={c.id} style={{ padding: "12px 16px", borderBottom: "1px solid #EDEFF3" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: 8, alignItems: "start" }}>
+              <div>
+                <span style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: 11, color: "var(--mute)" }}>{c.control_ref}{c.requirement === "should" ? " · recommended" : ""}</span>
+                <div style={{ fontSize: "0.88rem" }}>{CONTROLS[c.control_ref]}</div>
+                <input placeholder="Owner email" value={c.owner_email || ""} onChange={e => updateControl(c.id, "owner_email", e.target.value)}
+                  style={{ marginTop: 8, marginRight: 8, padding: "6px 8px", fontSize: "0.8rem", border: "1px solid var(--rule)", width: 180 }} />
+                <input type="date" value={c.due_date || ""} onChange={e => updateControl(c.id, "due_date", e.target.value)}
+                  style={{ marginTop: 8, padding: "6px 8px", fontSize: "0.8rem", border: "1px solid var(--rule)" }} />
+              </div>
+              <select value={c.status} onChange={e => updateControl(c.id, "status", e.target.value)}
+                style={{ padding: "8px 10px", fontSize: "0.82rem", border: "1px solid var(--rule)", height: "fit-content" }}>
+                {CONTROL_STATUS.map(s => <option key={s} value={s}>{s.replace("_", " ")}</option>)}
+              </select>
             </div>
-            <select value={c.status} onChange={e => updateControl(c.id, "status", e.target.value)}
-              style={{ padding: "8px 10px", fontSize: "0.82rem", border: "1px solid var(--rule)", height: "fit-content" }}>
-              {CONTROL_STATUS.map(s => <option key={s} value={s}>{s.replace("_", " ")}</option>)}
-            </select>
+
+            {c.status === "exception" && (
+              <div style={{ marginTop: 10, padding: 12, background: "var(--signal-soft, #FAF0DC)", borderLeft: "3px solid var(--signal, #9A6100)" }}>
+                <div style={{ fontSize: "0.72rem", fontWeight: 600, letterSpacing: "0.06em", textTransform: "uppercase", color: "var(--signal, #9A6100)", marginBottom: 8 }}>
+                  Exception record — all three required to count as closed
+                </div>
+                <textarea placeholder="Reason for the exception" value={c.exception_reason || ""} onChange={e => updateControl(c.id, "exception_reason", e.target.value)}
+                  style={{ width: "100%", minHeight: 50, padding: 8, fontSize: "0.82rem", border: "1px solid var(--rule)", marginBottom: 8, font: "inherit" }} />
+                <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                  <div>
+                    <label style={{ display: "block", fontSize: "0.7rem", color: "var(--mute)", marginBottom: 3 }}>Expires</label>
+                    <input type="date" value={c.exception_expiry || ""} onChange={e => updateControl(c.id, "exception_expiry", e.target.value)}
+                      style={{ padding: "6px 8px", fontSize: "0.8rem", border: "1px solid var(--rule)" }} />
+                  </div>
+                  <div style={{ flex: 1, minWidth: 180 }}>
+                    <label style={{ display: "block", fontSize: "0.7rem", color: "var(--mute)", marginBottom: 3 }}>Approved by (email)</label>
+                    <input value={c.exception_approved_by || ""} onChange={e => updateControl(c.id, "exception_approved_by", e.target.value)}
+                      style={{ padding: "6px 8px", fontSize: "0.8rem", border: "1px solid var(--rule)", width: "100%" }} />
+                  </div>
+                </div>
+                {!isControlClosed(c) && (
+                  <p style={{ margin: "8px 0 0", fontSize: "0.78rem", color: "var(--alert, #9B2C1E)" }}>
+                    Not yet complete — fill in all three fields (an expired date doesn't count either).
+                  </p>
+                )}
+              </div>
+            )}
           </div>
         ))}
       </div>
@@ -183,7 +251,12 @@ export default function PassportDetail() {
 
         {passport.lifecycle_status === "pending_approval" && (
           <>
-            {!canApprove && <p className="np-note" style={{ marginBottom: 10 }}>Approve is disabled until a named principal and next review date are set.</p>}
+            {!canApprove && (
+              <p className="np-note" style={{ marginBottom: 10 }}>
+                Approve is disabled until a named principal and next review date are set, and every
+                mandatory control is implemented or has a current exception recorded.
+              </p>
+            )}
             <textarea placeholder="Note (optional) — recorded with the decision" value={note} onChange={e => setNote(e.target.value)}
               style={{ width: "100%", minHeight: 60, marginBottom: 10, padding: 10, border: "1px solid var(--rule)", font: "inherit", fontSize: "0.88rem" }} />
             <button className="np-btn" disabled={busy || !canApprove}

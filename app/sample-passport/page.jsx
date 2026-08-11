@@ -74,6 +74,7 @@ const CSS = `
 .spp-status.implemented { background:var(--verify-soft); color:var(--verify); }
 .spp-status.in_progress { background:var(--signal-soft); color:var(--signal); }
 .spp-status.missing { background:var(--alert-soft); color:var(--alert); }
+.spp-status.exception { background:var(--signal-soft); color:var(--signal); }
 
 .spp-hist { padding:10px 0; border-bottom:1px solid #EDEFF3; font-size:0.85rem; }
 .spp-hist:last-child { border-bottom:0; }
@@ -98,9 +99,11 @@ const CONTROLS = [
   { ref: "IDN-01", name: "Unique agent identity", status: "implemented", meta: "Owner: iam@example.com · closed 3 weeks ago" },
   { ref: "IDN-02", name: "Named human principal", status: "implemented", meta: "Priya Sharma confirmed at registration" },
   { ref: "ENT-01", name: "Least-privilege entitlements", status: "implemented", meta: "Owner: finance-systems@example.com · closed 2 weeks ago" },
-  { ref: "CRD-01", name: "Vaulted, short-lived credentials", status: "in_progress", meta: "Owner: platform-team@example.com · due in 5 days" },
-  { ref: "AUD-01", name: "Tamper-evident action log", status: "implemented", meta: "Owner: security-eng@example.com · closed 1 week ago" },
-  { ref: "LFC-01", name: "Scheduled recertification", status: "missing", meta: "No owner assigned yet" },
+  { ref: "CRD-01", name: "Vaulted, short-lived credentials", status: "implemented", meta: "Owner: platform-team@example.com · closed 4 days ago" },
+  { ref: "AUD-01", name: "Append-only action log", status: "implemented", meta: "Owner: security-eng@example.com · closed 1 week ago" },
+  { ref: "LFC-01", name: "Scheduled recertification", status: "exception",
+    exceptionReason: "New agent, first recertification cycle not due until the standard 90-day mark. Tracked via the finance-systems team's existing quarterly access review instead of a separate campaign for now.",
+    exceptionExpiry: "18 Oct 2026", exceptionApprovedBy: "raj.kumar@example.com (CISO)" },
 ];
 
 const HISTORY = [
@@ -165,16 +168,32 @@ export default function SamplePassportPage() {
         </div>
 
         <h2>Required controls</h2>
-        <p style={{ fontSize: "0.85rem", color: "var(--mute)", margin: "0 0 10px" }}>5 of 7 mandatory controls implemented. One in progress, one missing.</p>
+        <p style={{ fontSize: "0.85rem", color: "var(--mute)", margin: "0 0 10px" }}>
+          7 of 7 mandatory controls closed — 6 implemented, 1 under a current, complete exception.
+          This is what actually gates approval now, not just informational text.
+        </p>
         <div className="spp-card" style={{ padding: 0 }}>
           {CONTROLS.map((c) => (
-            <div className="spp-ctl" key={c.ref} style={{ padding: "14px 22px" }}>
-              <div>
-                <span className="spp-ctl-ref">{c.ref}</span>
-                <div className="spp-ctl-name">{c.name}</div>
-                <div className="spp-ctl-meta">{c.meta}</div>
+            <div key={c.ref} style={{ padding: "14px 22px", borderBottom: "1px solid #EDEFF3" }}>
+              <div className="spp-ctl" style={{ padding: 0, border: 0 }}>
+                <div>
+                  <span className="spp-ctl-ref">{c.ref}</span>
+                  <div className="spp-ctl-name">{c.name}</div>
+                  {c.meta && <div className="spp-ctl-meta">{c.meta}</div>}
+                </div>
+                <span className={`spp-status ${c.status}`}>{c.status.replace("_", " ")}</span>
               </div>
-              <span className={`spp-status ${c.status}`}>{c.status.replace("_", " ")}</span>
+              {c.status === "exception" && (
+                <div style={{ marginTop: 10, padding: 12, background: "var(--signal-soft)", borderLeft: "3px solid var(--signal)" }}>
+                  <div style={{ fontSize: "0.68rem", fontWeight: 600, letterSpacing: "0.06em", textTransform: "uppercase", color: "var(--signal)", marginBottom: 6 }}>
+                    Exception record
+                  </div>
+                  <p style={{ margin: "0 0 8px", fontSize: "0.85rem" }}>{c.exceptionReason}</p>
+                  <p style={{ margin: 0, fontSize: "0.78rem", color: "var(--slate)" }}>
+                    Expires {c.exceptionExpiry} · Approved by {c.exceptionApprovedBy}
+                  </p>
+                </div>
+              )}
             </div>
           ))}
         </div>
@@ -185,13 +204,12 @@ export default function SamplePassportPage() {
             Approved 19 Jul 2026 by Raj Kumar (CISO).
           </p>
           <p style={{ margin: 0, fontSize: "0.9rem", color: "var(--slate)" }}>
-            Approval here is gated on two things: a named human principal and a scheduled review
-            date, both set before this decision. Control completion is tracked separately, shown
-            above, and does <em>not</em> block approval by design — requiring 100% closure before
-            approval would make the tool unusable for teams closing controls incrementally rather
-            than all at once. Two controls remain open on this agent: CRD-01 (in progress) and LFC-01
-            (missing, no owner yet). Both stay visible on this record, not hidden by the Approved
-            status.
+            Approval here required a named principal, a scheduled review date, and every mandatory
+            control closed — implemented, or under a complete, current exception. That's not
+            informational text; it's an actual gate. LFC-01's exception above (reason, expiry, named
+            approver) is what closed that control, not a status dropdown flipped without a record
+            behind it — an incomplete or expired exception would have kept this Passport blocked at
+            Pending approval.
           </p>
         </div>
 
