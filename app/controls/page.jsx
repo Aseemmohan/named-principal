@@ -126,7 +126,7 @@ export default function ControlLibraryPage() {
                 <h2>{items[0].domainName}</h2>
               </div>
               {items.map(c => (
-                <details className="ctl-item" key={c.ref}>
+                <details className="ctl-item" id={c.ref} key={c.ref}>
                   <summary>
                     <span className="ctl-item-title">
                       <span className="ctl-ref">{c.ref}</span>
@@ -170,7 +170,7 @@ export default function ControlLibraryPage() {
 
         <div className="ctl-foot">
           <p>Risk model version 2026.1. Last reviewed July 2026. Framework mappings are indicative — confirm current text for your jurisdiction and sector.</p>
-          <p>© 2026 Aseem Mohan · <a href="/">Assessment</a> · <a href="/methodology">Methodology</a> · <a href="/privacy">Privacy notice</a></p>
+          <p>© 2026 Aseem Mohan · <a href="/">Assessment</a> · <a href="/methodology">Methodology</a> · <a href="/identity-rules">Five Rules for Agent Identity</a> · <a href="/privacy">Privacy notice</a></p>
         </div>
       </div>
     </div>
