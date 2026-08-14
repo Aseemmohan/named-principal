@@ -36,6 +36,38 @@ const CSS = `
 .ctl-page *, .ctl-page *::before, .ctl-page *::after { box-sizing:border-box; }
 .ctl-shell { max-width:860px; margin:0 auto; padding:0 22px 90px; }
 
+/* Left-edge sticky badge linking to the Five Rules page. A gentle
+   pulse, not a strobe: rapid flashing (more than ~3 times/second) is
+   a documented seizure trigger for photosensitive users, so this
+   pulses slowly and smoothly instead, and stops entirely for anyone
+   with prefers-reduced-motion set. */
+.ctl-badge {
+  position: fixed; left: 0; top: 50%; transform: translateY(-50%) rotate(-90deg);
+  transform-origin: left center; z-index: 40;
+}
+.ctl-badge a {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--indigo); color: #fff; text-decoration: none;
+  padding: 11px 18px; font-family: 'IBM Plex Mono', monospace;
+  font-size: 11.5px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase;
+  border-radius: 0 0 6px 6px;
+  box-shadow: 0 0 0 0 rgba(38,48,122,0.5);
+  animation: ctlPulse 2.6s ease-in-out infinite;
+}
+.ctl-badge a:hover { background: #1A2260; }
+.ctl-badge .dot { width: 6px; height: 6px; border-radius: 50%; background: #C9A84C; flex-shrink: 0; }
+@keyframes ctlPulse {
+  0%   { box-shadow: 0 0 0 0 rgba(38,48,122,0.45); }
+  70%  { box-shadow: 0 0 0 10px rgba(38,48,122,0); }
+  100% { box-shadow: 0 0 0 0 rgba(38,48,122,0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ctl-badge a { animation: none; }
+}
+@media (max-width: 780px) {
+  .ctl-badge { display: none; } /* rotated side-tab doesn't work on narrow/touch screens — footer link still covers discoverability there */
+}
+
 .ctl-bar {
   display:flex; align-items:center; justify-content:space-between; gap:14px;
   padding:14px 0; border-bottom:1px solid var(--rule);
@@ -105,6 +137,12 @@ export default function ControlLibraryPage() {
     <div className="ctl-page">
       <style>{CSS}</style>
       <PublicNav current="/controls" />
+      <div className="ctl-badge">
+        <a href="/identity-rules">
+          <span className="dot" />
+          Five Rules for Agent Identity
+        </a>
+      </div>
       <div className="ctl-shell">
         <div className="ctl-hero">
           <p className="ctl-eyebrow">The twelve controls, in full</p>
