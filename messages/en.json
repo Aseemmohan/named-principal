@@ -1,0 +1,27 @@
+{
+  "nav": {
+    "assessment": "Assessment",
+    "profiler": "Agent Risk Profiler",
+    "methodology": "Methodology",
+    "controls": "Control Library",
+    "examples": "Examples",
+    "pilot": "Pilot",
+    "estate": "Agent Estate",
+    "privacy": "Privacy",
+    "security": "Security"
+  },
+  "home": {
+    "eyebrow": "Twelve controls · six minutes",
+    "heroLine1": "Most organisations can name their AI policy.",
+    "heroLine2": "Very few can name who authorised the agent.",
+    "lede": "Regulators in Singapore, the US and the EU have converged on the same expectation: every autonomous agent carries a unique identity, and every action traces back to a human who authorised it. Named Principal gives every AI agent a named human owner, bounded authority, risk-based approval, and an audit-ready record — starting with knowing exactly where your organisation stands today.",
+    "ctaAssess": "Assess your governance readiness",
+    "ctaPilot": "Talk to us about a pilot"
+  },
+  "common": {
+    "readMore": "Read more",
+    "learnMore": "Learn more",
+    "getStarted": "Get started",
+    "signIn": "Sign in"
+  }
+}

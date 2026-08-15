@@ -1,0 +1,27 @@
+{
+  "nav": {
+    "assessment": "Evaluación",
+    "profiler": "Perfil de Riesgo del Agente",
+    "methodology": "Metodología",
+    "controls": "Biblioteca de Controles",
+    "examples": "Ejemplos",
+    "pilot": "Piloto",
+    "estate": "Inventario de Agentes",
+    "privacy": "Privacidad",
+    "security": "Seguridad"
+  },
+  "home": {
+    "eyebrow": "Doce controles · seis minutos",
+    "heroLine1": "La mayoría de las organizaciones puede nombrar su política de IA.",
+    "heroLine2": "Muy pocas pueden nombrar quién autorizó al agente.",
+    "lede": "Los reguladores de Singapur, Estados Unidos y la Unión Europea han convergido en la misma expectativa: cada agente autónomo tiene una identidad única, y cada acción se remonta a un humano que la autorizó. Named Principal otorga a cada agente de IA un propietario humano designado, autoridad limitada, aprobación basada en riesgo y un registro listo para auditoría, comenzando por saber exactamente en qué punto se encuentra su organización hoy.",
+    "ctaAssess": "Evalúe la preparación de su gobernanza",
+    "ctaPilot": "Hable con nosotros sobre un piloto"
+  },
+  "common": {
+    "readMore": "Leer más",
+    "learnMore": "Más información",
+    "getStarted": "Comenzar",
+    "signIn": "Iniciar sesión"
+  }
+}
