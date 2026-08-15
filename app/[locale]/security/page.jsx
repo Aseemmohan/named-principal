@@ -2,29 +2,40 @@
  * Security — Named Principal
  * © 2026 Aseem Mohan. All rights reserved.
  *
- * INSTALL AT: app/security/page.jsx
+ * INSTALL AT: app/[locale]/security/page.jsx  (replaces existing)
  *
- * Deliberately the SECURITY half only of what would normally be an
- * "About / Security" page — no founder-bio or company-narrative
- * content here, per the standing decision to hold that back pending
- * a separate, unresolved question. Everything on this page is a
- * factual claim about the actual infrastructure, checked against what
- * was actually built this session — nothing aspirational stated as
- * current fact. A security-literate buyer catches overclaiming
- * immediately, and it costs more credibility than admitting a gap.
+ * FIRST PAGE CONVERTED to pull text from the translation system
+ * instead of hardcoded English — the proof-of-pattern for the rest of
+ * the site. Uses getTranslations (the async, Server Component API)
+ * rather than the useTranslations hook, since this stays a plain
+ * Server Component, unchanged from before. Content and meaning are
+ * IDENTICAL to the previous version — every string just now comes
+ * from messages/<locale>.json instead of being written directly in
+ * this file, so /es/security (and eventually every other locale)
+ * actually renders translated text instead of English at a different
+ * URL.
  *
- * Plain Server Component — static content, no auth, no client state.
+ * Two strings use t.rich() instead of plain t() — the email-delivery
+ * paragraph (has an inline link to the privacy notice) and the
+ * vulnerability-reporting paragraph (has an inline mailto link) —
+ * since next-intl's plain t() can't embed a clickable element inside
+ * a translated sentence; t.rich() is the API built for exactly this.
  */
 
+import { getTranslations } from "next-intl/server";
 import PublicNav from "../../../components/PublicNav";
 
-export const metadata = {
-  title: "Security",
-  description: "How Named Principal actually handles data — infrastructure, access controls, and what's honestly still on the roadmap.",
-  alternates: { canonical: "https://www.namedprincipal.com/security" },
-};
-
 const CONTACT_EMAIL = "reports@namedprincipal.com";
+
+export async function generateMetadata({ params }) {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "security" });
+  return {
+    title: t("metaTitle"),
+    description: t("metaDescription"),
+    alternates: { canonical: "https://www.namedprincipal.com/security" },
+  };
+}
 
 const CSS = `
 @import url('https://fonts.googleapis.com/css2?family=Archivo:wght@600;800&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap');
@@ -69,113 +80,100 @@ const CSS = `
 .sec-foot a { color:var(--indigo); }
 `;
 
-export default function SecurityPage() {
+export default async function SecurityPage({ params }) {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "security" });
+
+  const statusRows = [
+    { label: t("status.rowHttps"), tone: "verify", tag: t("status.labelInPlace") },
+    { label: t("status.rowRls"), tone: "verify", tag: t("status.labelInPlace") },
+    { label: t("status.rowAudit"), tone: "verify", tag: t("status.labelInPlace") },
+    { label: t("status.rowOauth"), tone: "verify", tag: t("status.labelInPlace") },
+    { label: t("status.rowPentest"), tone: "signal", tag: t("status.labelNotYetDone") },
+    { label: t("status.rowCert"), tone: "signal", tag: t("status.labelNotYetPursued") },
+    { label: t("status.rowSso"), tone: "signal", tag: t("status.labelRoadmap") },
+    { label: t("status.rowUptime"), tone: "signal", tag: t("status.labelNotPublished") },
+  ];
+
   return (
     <div className="sec">
       <style>{CSS}</style>
       <PublicNav current="/security" />
       <div className="sec-shell">
         <div className="sec-hero">
-          <p className="sec-eyebrow">How data is actually handled</p>
-          <h1>Security, stated plainly.</h1>
-          <p className="sec-lede">
-            No certifications to point to yet, and this page won't pretend otherwise. What follows is
-            factual — what the infrastructure actually does today, and where the honest gaps are
-            against what an enterprise deployment would eventually need.
-          </p>
+          <p className="sec-eyebrow">{t("eyebrow")}</p>
+          <h1>{t("h1")}</h1>
+          <p className="sec-lede">{t("lede")}</p>
         </div>
 
         <section className="sec-sec">
-          <h2>Infrastructure</h2>
+          <h2>{t("infrastructure.heading")}</h2>
           <div className="sec-card">
-            <h3>Hosting and database</h3>
-            <p>
-              The application is served by Vercel over HTTPS. Data is stored in a Supabase-managed
-              PostgreSQL database in the Southeast Asia (Singapore) region, encrypted at rest and in
-              transit by the platform's default configuration.
-            </p>
+            <h3>{t("infrastructure.hostingTitle")}</h3>
+            <p>{t("infrastructure.hostingBody")}</p>
           </div>
           <div className="sec-card">
-            <h3>Authentication</h3>
-            <p>
-              Sign-in to the authenticated product (AI Estate, Agent Passports, Approvals) uses Google
-              OAuth via Supabase Auth. No passwords are set, stored, or handled by Named Principal's
-              own infrastructure — that's delegated entirely to Google.
-            </p>
+            <h3>{t("infrastructure.authTitle")}</h3>
+            <p>{t("infrastructure.authBody")}</p>
           </div>
           <div className="sec-card">
-            <h3>Email delivery</h3>
+            <h3>{t("infrastructure.emailTitle")}</h3>
             <p>
-              Report and pilot-enquiry emails are sent through Resend. Message content passes through
-              their infrastructure in transit to deliver the email; it isn't stored by Named Principal
-              beyond what's disclosed in the <a href="/privacy" style={{ color: "var(--indigo)" }}>privacy notice</a>.
+              {t.rich("infrastructure.emailBody", {
+                privacyLink: (chunks) => <a href="/privacy" style={{ color: "var(--indigo)" }}>{chunks}</a>,
+              })}
             </p>
           </div>
         </section>
 
         <section className="sec-sec">
-          <h2>Access controls</h2>
+          <h2>{t("accessControls.heading")}</h2>
           <div className="sec-card">
-            <h3>Row-level security</h3>
-            <p>
-              Authenticated client requests are restricted through row-level security policies scoped
-              to the user's organisation. Privileged server-side credentials — used for lead-capture
-              tables like assessment reports and pilot enquiries — are never exposed to the browser and
-              are limited to controlled server routes.
-            </p>
+            <h3>{t("accessControls.rlsTitle")}</h3>
+            <p>{t("accessControls.rlsBody")}</p>
           </div>
           <div className="sec-card">
-            <h3>Append-only audit history</h3>
-            <p>
-              Every material action inside the authenticated product — a Passport created, a control
-              status changed, an approval decision made — is written to an append-only audit log tied
-              to the acting user and organisation.
-            </p>
+            <h3>{t("accessControls.auditTitle")}</h3>
+            <p>{t("accessControls.auditBody")}</p>
           </div>
           <div className="sec-card">
-            <h3>Enforced accountability</h3>
-            <p>
-              An Agent Passport cannot reach Approved status without a named human principal and a
-              scheduled review date. This is enforced as a database constraint, not just a form
-              validation — it holds even if a future code change forgets to check it.
-            </p>
+            <h3>{t("accessControls.enforcedTitle")}</h3>
+            <p>{t("accessControls.enforcedBody")}</p>
           </div>
         </section>
 
         <section className="sec-sec">
-          <h2>Where this stands today</h2>
+          <h2>{t("status.heading")}</h2>
           <p style={{ color: "var(--slate)", fontSize: "0.88rem", marginBottom: 14 }}>
-            An honest maturity check against what an enterprise deployment eventually needs:
+            {t("status.intro")}
           </p>
           <div className="sec-status">
-            <div className="sec-status-row"><span>HTTPS everywhere, encryption at rest and in transit</span><span className="sec-pill verify">In place</span></div>
-            <div className="sec-status-row"><span>Row-level security on every table</span><span className="sec-pill verify">In place</span></div>
-            <div className="sec-status-row"><span>Append-only audit logging</span><span className="sec-pill verify">In place</span></div>
-            <div className="sec-status-row"><span>Google OAuth sign-in</span><span className="sec-pill verify">In place</span></div>
-            <div className="sec-status-row"><span>Independent security audit or penetration test</span><span className="sec-pill signal">Not yet done</span></div>
-            <div className="sec-status-row"><span>SOC 2 / ISO 27001 certification</span><span className="sec-pill signal">Not yet pursued</span></div>
-            <div className="sec-status-row"><span>Enterprise SSO (SAML / Microsoft Entra), SCIM</span><span className="sec-pill signal">Roadmap</span></div>
-            <div className="sec-status-row"><span>Formal uptime / availability commitment</span><span className="sec-pill signal">None published yet</span></div>
+            {statusRows.map((row, i) => (
+              <div className="sec-status-row" key={i}>
+                <span>{row.label}</span>
+                <span className={`sec-pill ${row.tone}`}>{row.tag}</span>
+              </div>
+            ))}
           </div>
-          <div className="sec-note">
-            This list will get shorter over time, and each item will move to "In place" when it's
-            actually true — not before.
-          </div>
+          <div className="sec-note">{t("status.note")}</div>
         </section>
 
         <section className="sec-sec">
-          <h2>Reporting a security issue</h2>
+          <h2>{t("reporting.heading")}</h2>
           <div className="sec-card">
             <p>
-              If you find a vulnerability, email <a href={`mailto:${CONTACT_EMAIL}`} style={{ color: "var(--indigo)" }}>{CONTACT_EMAIL}</a> directly
-              with what you found and how to reproduce it. There's no bug bounty program yet, but every
-              report gets read, and a genuine finding gets fixed and credited if you'd like.
+              {t.rich("reporting.body", {
+                email: CONTACT_EMAIL,
+                emailLink: (chunks) => <a href={`mailto:${CONTACT_EMAIL}`} style={{ color: "var(--indigo)" }}>{chunks}</a>,
+              })}
             </p>
           </div>
         </section>
 
         <div className="sec-foot">
-          <p>© 2026 Aseem Mohan · <a href="/">Assessment</a> · <a href="/privacy">Privacy notice</a> · <a href="/methodology">Methodology</a></p>
+          <p>
+            © 2026 Aseem Mohan · <a href="/">{t("footerAssessment")}</a> · <a href="/privacy">{t("footerPrivacy")}</a> · <a href="/methodology">{t("footerMethodology")}</a>
+          </p>
         </div>
       </div>
     </div>

@@ -23,5 +23,55 @@
     "learnMore": "Más información",
     "getStarted": "Comenzar",
     "signIn": "Iniciar sesión"
+  },
+  "security": {
+    "metaTitle": "Seguridad",
+    "metaDescription": "Cómo maneja realmente los datos Named Principal — infraestructura, controles de acceso, y lo que honestamente sigue pendiente en la hoja de ruta.",
+    "eyebrow": "Cómo se manejan realmente los datos",
+    "h1": "Seguridad, expuesta con claridad.",
+    "lede": "Todavía no hay certificaciones que mostrar, y esta página no lo va a disimular. Lo que sigue es un hecho: qué hace realmente la infraestructura hoy, y dónde están las brechas honestas frente a lo que eventualmente necesitaría una implementación empresarial.",
+    "infrastructure": {
+      "heading": "Infraestructura",
+      "hostingTitle": "Alojamiento y base de datos",
+      "hostingBody": "La aplicación es servida por Vercel a través de HTTPS. Los datos se almacenan en una base de datos PostgreSQL gestionada por Supabase en la región del Sudeste Asiático (Singapur), cifrados en reposo y en tránsito según la configuración predeterminada de la plataforma.",
+      "authTitle": "Autenticación",
+      "authBody": "El inicio de sesión al producto autenticado (Inventario de Agentes, Pasaportes de Agente, Aprobaciones) utiliza OAuth de Google a través de Supabase Auth. Named Principal no establece, almacena ni gestiona contraseñas en su propia infraestructura — eso se delega enteramente a Google.",
+      "emailTitle": "Entrega de correo electrónico",
+      "emailBody": "Los correos de informes y consultas sobre pilotos se envían a través de Resend. El contenido del mensaje pasa por su infraestructura en tránsito para entregar el correo; Named Principal no lo almacena más allá de lo divulgado en el <privacyLink>aviso de privacidad</privacyLink>."
+    },
+    "accessControls": {
+      "heading": "Controles de acceso",
+      "rlsTitle": "Seguridad a nivel de fila",
+      "rlsBody": "Las solicitudes de clientes autenticados están restringidas mediante políticas de seguridad a nivel de fila, limitadas a la organización del usuario. Las credenciales privilegiadas del lado del servidor — usadas para tablas de captura de contactos como informes de evaluación y consultas de pilotos — nunca se exponen al navegador y están limitadas a rutas de servidor controladas.",
+      "auditTitle": "Historial de auditoría de solo adición",
+      "auditBody": "Cada acción material dentro del producto autenticado — un Pasaporte creado, un cambio de estado de control, una decisión de aprobación — se registra en un historial de auditoría de solo adición vinculado al usuario y la organización que actuó.",
+      "enforcedTitle": "Responsabilidad exigida",
+      "enforcedBody": "Un Pasaporte de Agente no puede alcanzar el estado Aprobado sin un principal humano designado y una fecha de revisión programada. Esto se exige como una restricción de base de datos, no solo una validación de formulario — se mantiene incluso si un cambio de código futuro olvida verificarlo."
+    },
+    "status": {
+      "heading": "Dónde estamos hoy",
+      "intro": "Una verificación honesta de madurez frente a lo que eventualmente necesitaría una implementación empresarial:",
+      "rowHttps": "HTTPS en todas partes, cifrado en reposo y en tránsito",
+      "rowRls": "Seguridad a nivel de fila en cada tabla",
+      "rowAudit": "Registro de auditoría de solo adición",
+      "rowOauth": "Inicio de sesión con OAuth de Google",
+      "rowPentest": "Auditoría de seguridad independiente o prueba de penetración",
+      "rowCert": "Certificación SOC 2 / ISO 27001",
+      "rowSso": "SSO empresarial (SAML / Microsoft Entra), SCIM",
+      "rowUptime": "Compromiso formal de tiempo de actividad / disponibilidad",
+      "labelInPlace": "Implementado",
+      "labelNotYetDone": "Aún no realizado",
+      "labelNotYetPursued": "Aún no iniciado",
+      "labelRoadmap": "En hoja de ruta",
+      "labelNotPublished": "Aún no publicado",
+      "note": "Esta lista se irá acortando con el tiempo, y cada elemento pasará a \"Implementado\" cuando sea realmente cierto — no antes."
+    },
+    "reporting": {
+      "heading": "Reportar un problema de seguridad",
+      "body": "Si encuentra una vulnerabilidad, escriba directamente a <emailLink>{email}</emailLink> con lo que encontró y cómo reproducirlo. Todavía no hay un programa de recompensas por errores, pero cada informe se lee, y un hallazgo genuino se corrige y se acredita si así lo desea."
+    },
+    "footerAssessment": "Evaluación",
+    "footerPrivacy": "Aviso de privacidad",
+    "footerMethodology": "Metodología"
   }
 }

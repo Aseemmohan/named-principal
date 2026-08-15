@@ -23,5 +23,55 @@
     "learnMore": "Learn more",
     "getStarted": "Get started",
     "signIn": "Sign in"
+  },
+  "security": {
+    "metaTitle": "Security",
+    "metaDescription": "How Named Principal actually handles data — infrastructure, access controls, and what's honestly still on the roadmap.",
+    "eyebrow": "How data is actually handled",
+    "h1": "Security, stated plainly.",
+    "lede": "No certifications to point to yet, and this page won't pretend otherwise. What follows is factual — what the infrastructure actually does today, and where the honest gaps are against what an enterprise deployment would eventually need.",
+    "infrastructure": {
+      "heading": "Infrastructure",
+      "hostingTitle": "Hosting and database",
+      "hostingBody": "The application is served by Vercel over HTTPS. Data is stored in a Supabase-managed PostgreSQL database in the Southeast Asia (Singapore) region, encrypted at rest and in transit by the platform's default configuration.",
+      "authTitle": "Authentication",
+      "authBody": "Sign-in to the authenticated product (AI Estate, Agent Passports, Approvals) uses Google OAuth via Supabase Auth. No passwords are set, stored, or handled by Named Principal's own infrastructure — that's delegated entirely to Google.",
+      "emailTitle": "Email delivery",
+      "emailBody": "Report and pilot-enquiry emails are sent through Resend. Message content passes through their infrastructure in transit to deliver the email; it isn't stored by Named Principal beyond what's disclosed in the <privacyLink>privacy notice</privacyLink>."
+    },
+    "accessControls": {
+      "heading": "Access controls",
+      "rlsTitle": "Row-level security",
+      "rlsBody": "Authenticated client requests are restricted through row-level security policies scoped to the user's organisation. Privileged server-side credentials — used for lead-capture tables like assessment reports and pilot enquiries — are never exposed to the browser and are limited to controlled server routes.",
+      "auditTitle": "Append-only audit history",
+      "auditBody": "Every material action inside the authenticated product — a Passport created, a control status changed, an approval decision made — is written to an append-only audit log tied to the acting user and organisation.",
+      "enforcedTitle": "Enforced accountability",
+      "enforcedBody": "An Agent Passport cannot reach Approved status without a named human principal and a scheduled review date. This is enforced as a database constraint, not just a form validation — it holds even if a future code change forgets to check it."
+    },
+    "status": {
+      "heading": "Where this stands today",
+      "intro": "An honest maturity check against what an enterprise deployment eventually needs:",
+      "rowHttps": "HTTPS everywhere, encryption at rest and in transit",
+      "rowRls": "Row-level security on every table",
+      "rowAudit": "Append-only audit logging",
+      "rowOauth": "Google OAuth sign-in",
+      "rowPentest": "Independent security audit or penetration test",
+      "rowCert": "SOC 2 / ISO 27001 certification",
+      "rowSso": "Enterprise SSO (SAML / Microsoft Entra), SCIM",
+      "rowUptime": "Formal uptime / availability commitment",
+      "labelInPlace": "In place",
+      "labelNotYetDone": "Not yet done",
+      "labelNotYetPursued": "Not yet pursued",
+      "labelRoadmap": "Roadmap",
+      "labelNotPublished": "None published yet",
+      "note": "This list will get shorter over time, and each item will move to \"In place\" when it's actually true — not before."
+    },
+    "reporting": {
+      "heading": "Reporting a security issue",
+      "body": "If you find a vulnerability, email <emailLink>{email}</emailLink> directly with what you found and how to reproduce it. There's no bug bounty program yet, but every report gets read, and a genuine finding gets fixed and credited if you'd like."
+    },
+    "footerAssessment": "Assessment",
+    "footerPrivacy": "Privacy notice",
+    "footerMethodology": "Methodology"
   }
 }
