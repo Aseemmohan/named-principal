@@ -25,6 +25,8 @@
  * correct regardless of sign-in state without needing to check it here.
  */
 
+import LanguageSwitcher from "./LanguageSwitcher";
+
 const LINKS = [
   { href: "/", label: "Assessment" },
   { href: "/agent", label: "Agent Risk Profiler" },
@@ -49,10 +51,13 @@ const STYLE = `
   gap: 16px; flex-wrap: wrap;
 }
 .pubnav-brand {
-  font-family: 'Archivo', sans-serif; font-weight: 800; font-size: 1rem;
+  display: flex; align-items: center; gap: 9px;
+  font-family: 'Archivo', sans-serif; font-weight: 800; font-size: 1.15rem;
   color: #11151E; text-decoration: none; letter-spacing: -0.01em; white-space: nowrap;
 }
+.pubnav-brand img { width: 26px; height: 26px; display: block; }
 .pubnav-links { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+.pubnav-right { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
 .pubnav-link {
   font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.06em;
   text-transform: uppercase; color: #59637A; text-decoration: none;
@@ -73,17 +78,23 @@ export default function PublicNav({ current }) {
     <nav className="pubnav">
       <style>{STYLE}</style>
       <div className="pubnav-in">
-        <a className="pubnav-brand" href="/">Named Principal</a>
-        <div className="pubnav-links">
-          {LINKS.map((l) => (
-            <a
-              key={l.href}
-              href={l.href}
-              className={`pubnav-link${current === l.href ? " is-current" : ""}`}
-            >
-              {l.label}
-            </a>
-          ))}
+        <a className="pubnav-brand" href="/">
+          <img src="/favicon-32x32.png" alt="" width="26" height="26" />
+          Named Principal
+        </a>
+        <div className="pubnav-right">
+          <div className="pubnav-links">
+            {LINKS.map((l) => (
+              <a
+                key={l.href}
+                href={l.href}
+                className={`pubnav-link${current === l.href ? " is-current" : ""}`}
+              >
+                {l.label}
+              </a>
+            ))}
+          </div>
+          <LanguageSwitcher />
         </div>
       </div>
     </nav>
