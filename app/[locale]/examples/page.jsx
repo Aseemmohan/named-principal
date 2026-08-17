@@ -2,25 +2,26 @@
  * Examples hub — Named Principal
  * © 2026 Aseem Mohan. All rights reserved.
  *
- * INSTALL AT: app/examples/page.jsx
+ * INSTALL AT: app/[locale]/examples/page.jsx  (replaces existing)
  *
- * Single, discoverable entry point for the two proof pages
- * (/sample-passport, /sample-estate), which were previously only
- * reachable via a small inline text link on /pilot — real
- * discoverability gap for a first-time visitor. Rather than add both
- * pages directly to the main nav (which starts crowding it), this adds
- * one nav slot that fans out to both.
- *
- * Plain Server Component — static content, no auth, no client state.
+ * Converted to pull text from the translation system, same pattern
+ * as /security. Content and structure are unchanged from the
+ * previous version — every string now comes from
+ * messages/<locale>.json instead of being hardcoded here.
  */
 
+import { getTranslations } from "next-intl/server";
 import PublicNav from "../../../components/PublicNav";
 
-export const metadata = {
-  title: "Examples",
-  description: "See what Named Principal actually produces — a worked Agent Passport and a full sample AI Estate, both built from real product output.",
-  alternates: { canonical: "https://www.namedprincipal.com/examples" },
-};
+export async function generateMetadata({ params }) {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "examples" });
+  return {
+    title: t("metaTitle"),
+    description: t("metaDescription"),
+    alternates: { canonical: "https://www.namedprincipal.com/examples" },
+  };
+}
 
 const CSS = `
 @import url('https://fonts.googleapis.com/css2?family=Archivo:wght@600;800&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap');
@@ -64,52 +65,44 @@ const CSS = `
 }
 `;
 
-export default function ExamplesPage() {
+export default async function ExamplesPage({ params }) {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "examples" });
+  const tf = await getTranslations({ locale, namespace: "footer" });
+
   return (
     <div className="exh">
       <style>{CSS}</style>
       <PublicNav current="/examples" />
       <div className="exh-shell">
         <div className="exh-hero">
-          <p className="exh-eyebrow">See it before you request it</p>
-          <h1>What Named Principal actually produces.</h1>
-          <p className="exh-lede">
-            Not a mockup — these are built from the same structure the real, authenticated product
-            uses. Synthetic data throughout, clearly labelled, but the shape of it is exactly what a
-            pilot would produce for your own estate.
-          </p>
+          <p className="exh-eyebrow">{t("eyebrow")}</p>
+          <h1>{t("h1")}</h1>
+          <p className="exh-lede">{t("lede")}</p>
         </div>
 
         <div className="exh-grid">
           <div className="exh-card">
-            <span className="exh-card-tag">Sample data</span>
-            <h2>Agent Passport</h2>
-            <p>
-              One agent, fully governed: identity, named principal, purpose, risk score, control
-              checklist, approval decision, and a full audit history — the actual record a pilot
-              builds per agent.
-            </p>
-            <a href="/sample-passport">See a worked Passport →</a>
+            <span className="exh-card-tag">{t("cardTag")}</span>
+            <h2>{t("passportTitle")}</h2>
+            <p>{t("passportBody")}</p>
+            <a href="/sample-passport">{t("passportLink")}</a>
           </div>
           <div className="exh-card">
-            <span className="exh-card-tag">Sample data</span>
-            <h2>AI Estate</h2>
-            <p>
-              Eight agents, one inventory: status, risk tier, named principal and next review date for
-              each — the governed view a CISO or CIO actually gets once agents stop living in
-              spreadsheets.
-            </p>
-            <a href="/sample-estate">See a sample Estate →</a>
+            <span className="exh-card-tag">{t("cardTag")}</span>
+            <h2>{t("estateTitle")}</h2>
+            <p>{t("estateBody")}</p>
+            <a href="/sample-estate">{t("estateLink")}</a>
           </div>
         </div>
 
         <div className="exh-cta">
-          <p>This is what a pilot builds for your own agents in thirty days, not synthetic ones.</p>
-          <a className="exh-btn" href="/pilot">Start a pilot →</a>
+          <p>{t("ctaText")}</p>
+          <a className="exh-btn" href="/pilot">{t("ctaButton")}</a>
         </div>
 
         <div className="exh-foot">
-          <p>© 2026 Aseem Mohan · <a href="/">Assessment</a> · <a href="/methodology">Methodology</a> · <a href="/controls">Control library</a></p>
+          <p>© 2026 Aseem Mohan · <a href="/">{tf("assessment")}</a> · <a href="/methodology">{tf("methodology")}</a> · <a href="/controls">{tf("controls")}</a></p>
         </div>
       </div>
     </div>

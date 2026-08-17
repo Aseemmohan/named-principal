@@ -2,30 +2,27 @@
  * Five Rules for Agent Identity — Named Principal
  * © 2026 Aseem Mohan. All rights reserved.
  *
- * INSTALL AT: app/identity-rules/page.jsx
+ * INSTALL AT: app/[locale]/identity-rules/page.jsx  (replaces existing)
  *
- * Original content and wording. Not derived from or modelled on any
- * third party's specific text, examples, or diagram — the underlying
- * ideas (unique identity, named accountability, least privilege,
- * action-level logging, independent revocation) are standard,
- * widely-held IAM principles applied to agents, not anyone's
- * proprietary framing. What makes this page worth publishing is that
- * each rule links straight through to the real control that actually
- * enforces it in the product — not just stated, built.
- *
- * Plain Server Component — static content, no auth, no client state.
- * Deliberately not in the main nav (a thought-leadership page, not a
- * core product tab) — cross-linked from /methodology and /controls
- * instead, and shareable standalone via direct URL.
+ * Converted to pull text from the translation system. The five RULES
+ * entries reference translation keys (rule1Title, rule1Body, etc.)
+ * rather than embedding English text directly, while the control refs
+ * (IDN-01, IDN-02, etc.) and hrefs stay as plain data — those are
+ * identifiers, not language-dependent content.
  */
 
+import { getTranslations } from "next-intl/server";
 import PublicNav from "../../../components/PublicNav";
 
-export const metadata = {
-  title: "Five Rules for Agent Identity",
-  description: "Five plain rules for trusting an AI agent — each one tied to the specific control that actually enforces it, not just a principle on a slide.",
-  alternates: { canonical: "https://www.namedprincipal.com/identity-rules" },
-};
+export async function generateMetadata({ params }) {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "identityRules" });
+  return {
+    title: t("metaTitle"),
+    description: t("metaDescription"),
+    alternates: { canonical: "https://www.namedprincipal.com/identity-rules" },
+  };
+}
 
 const CSS = `
 @import url('https://fonts.googleapis.com/css2?family=Archivo:wght@600;800&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap');
@@ -90,101 +87,75 @@ const CSS = `
 }
 `;
 
-const RULES = [
-  {
-    n: "01", h: "No Shared Identities",
-    p: "Every agent is provisioned its own identity at creation. Reusing an existing service account isn't a shortcut \u2014 it's the fastest way to destroy attribution the moment two agents share a credential.",
-    risk: "One compromised credential now means every agent behind it is compromised, and there's no way to tell which one actually did it.",
-    ref: "IDN-01", refName: "Unique agent identity",
-  },
-  {
-    n: "02", h: "A Human Is Named, Not Implied",
-    p: "An agent isn't accountable to itself. A specific person has to be willing to answer for why it exists and what it's permitted to do \u2014 not a team distribution list. A person.",
-    risk: "Without a name attached, \u201Cthe agent did it\u201D has nowhere to go. There's no one left to ask.",
-    ref: "IDN-02", refName: "Named human principal",
-  },
-  {
-    n: "03", h: "Privilege Matches the Task, Nothing More",
-    p: "An agent holds only the access its current task requires \u2014 reviewed against what it actually uses, not what it was granted on day one and never revisited.",
-    risk: "Excess privilege is dormant risk. A single prompt injection turns unused access into a live incident.",
-    ref: "ENT-01", refName: "Least-privilege entitlements",
-  },
-  {
-    n: "04", h: "Every Action Leaves a Record",
-    p: "What an agent actually did \u2014 not what it was asked to do \u2014 belongs in a log it cannot edit or delete. Prompts show intent. Actions show consequence.",
-    risk: "Without an action-level record, \u201Cthe agent did it\u201D can never be verified. Only claimed.",
-    ref: "AUD-01", refName: "Append-only action log",
-  },
-  {
-    n: "05", h: "Revoking One Should Never Touch the Rest",
-    p: "If disabling one agent risks breaking three others, credentials were shared somewhere they shouldn't have been. Revocation should be immediate, surgical, and boring.",
-    risk: "Shared blast radius turns revocation into a business decision instead of a security reflex \u2014 so it gets delayed, and the exposure sits open longer.",
-    ref: "CRD-02", refName: "Independent revocation",
-  },
+const RULE_META = [
+  { n: "01", titleKey: "rule1Title", bodyKey: "rule1Body", riskKey: "rule1Risk", refNameKey: "rule1RefName", ref: "IDN-01" },
+  { n: "02", titleKey: "rule2Title", bodyKey: "rule2Body", riskKey: "rule2Risk", refNameKey: "rule2RefName", ref: "IDN-02" },
+  { n: "03", titleKey: "rule3Title", bodyKey: "rule3Body", riskKey: "rule3Risk", refNameKey: "rule3RefName", ref: "ENT-01" },
+  { n: "04", titleKey: "rule4Title", bodyKey: "rule4Body", riskKey: "rule4Risk", refNameKey: "rule4RefName", ref: "AUD-01" },
+  { n: "05", titleKey: "rule5Title", bodyKey: "rule5Body", riskKey: "rule5Risk", refNameKey: "rule5RefName", ref: "CRD-02" },
 ];
 
-const LOOP = ["Register", "Assess", "Name a Principal", "Close Controls", "Approve", "Audit & Recertify"];
+const LOOP_KEYS = ["loopStep1", "loopStep2", "loopStep3", "loopStep4", "loopStep5", "loopStep6"];
 
-export default function IdentityRulesPage() {
+export default async function IdentityRulesPage({ params }) {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "identityRules" });
+  const tf = await getTranslations({ locale, namespace: "footer" });
+
   return (
     <div className="idr">
       <style>{CSS}</style>
       <PublicNav current="/identity-rules" />
       <div className="idr-shell">
         <div className="idr-hero">
-          <p className="idr-eyebrow">Five Rules for Agent Identity</p>
-          <h1>Before you trust an AI agent, ask these five questions.</h1>
-          <p className="idr-lede">
-            None of this is new. It's the same discipline identity and access management has applied to
-            humans for decades, pointed at a new kind of actor. What's different here is that each rule
-            below links straight to the actual control that enforces it — not a slide, a real gate in
-            the product.
-          </p>
+          <p className="idr-eyebrow">{t("eyebrow")}</p>
+          <h1>{t("h1")}</h1>
+          <p className="idr-lede">{t("lede")}</p>
         </div>
 
-        {RULES.map((r) => (
+        {RULE_META.map((r) => (
           <div className="idr-rule" key={r.ref}>
             <div className="idr-rule-head">
               <span className="idr-num">{r.n}</span>
               <div>
-                <h2>{r.h}</h2>
-                <p>{r.p}</p>
+                <h2>{t(r.titleKey)}</h2>
+                <p>{t(r.bodyKey)}</p>
               </div>
             </div>
             <div className="idr-risk">
-              <b>The risk if you don't</b>
-              {r.risk}
+              <b>{t("riskLabel")}</b>
+              {t(r.riskKey)}
             </div>
             <div className="idr-enforced">
-              <span>Enforced by <b>{r.ref}</b> — {r.refName}</span>
-              <a href={`/controls#${r.ref}`}>See the control →</a>
+              <span>{t("enforcedByLabel")} <b>{r.ref}</b> — {t(r.refNameKey)}</span>
+              <a href={`/controls#${r.ref}`}>{t("seeControl")}</a>
             </div>
           </div>
         ))}
 
         <div className="idr-loop">
-          <h2>How this runs as a loop, not a one-time checklist</h2>
-          <p className="idr-loop-note">The same seven-step cycle behind every Agent Passport on this site — it closes, and starts again at recertification.</p>
+          <h2>{t("loopHeading")}</h2>
+          <p className="idr-loop-note">{t("loopNote")}</p>
           <div className="idr-loop-row">
-            {LOOP.map((step, i) => (
-              <div className="idr-loop-step" key={step} style={{ display: "flex", alignItems: "center" }}>
+            {LOOP_KEYS.map((key, i) => (
+              <div className="idr-loop-step" key={key} style={{ display: "flex", alignItems: "center" }}>
                 <div style={{ flex: 1 }}>
                   <div className="idr-loop-circle">{i + 1}</div>
-                  <div className="lbl">{step}</div>
+                  <div className="lbl">{t(key)}</div>
                 </div>
-                {i < LOOP.length - 1 && <span className="idr-loop-arrow">→</span>}
+                {i < LOOP_KEYS.length - 1 && <span className="idr-loop-arrow">→</span>}
               </div>
             ))}
           </div>
         </div>
 
         <div className="idr-cta">
-          <p>Curious what these five rules look like as a real record, not a rule of thumb?</p>
-          <a className="idr-btn" href="/sample-passport">See a worked Agent Passport →</a>
+          <p>{t("ctaText")}</p>
+          <a className="idr-btn" href="/sample-passport">{t("ctaButton")}</a>
         </div>
 
         <div className="idr-foot">
-          <p>© 2026 Aseem Mohan · <a href="/controls">Full control library</a> · <a href="/methodology">Methodology</a> · <a href="/">Assessment</a></p>
+          <p>© 2026 Aseem Mohan · <a href="/controls">{tf("controls")}</a> · <a href="/methodology">{tf("methodology")}</a> · <a href="/">{tf("assessment")}</a></p>
         </div>
       </div>
     </div>
