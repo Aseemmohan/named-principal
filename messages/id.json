@@ -1,0 +1,77 @@
+{
+  "nav": {
+    "assessment": "Penilaian",
+    "profiler": "Profil Risiko Agen",
+    "methodology": "Metodologi",
+    "controls": "Pustaka Kontrol",
+    "examples": "Contoh",
+    "pilot": "Pilot",
+    "estate": "Daftar Agen",
+    "privacy": "Privasi",
+    "security": "Keamanan"
+  },
+  "home": {
+    "eyebrow": "Dua belas kontrol · enam menit",
+    "heroLine1": "Sebagian besar organisasi dapat menyebutkan kebijakan AI mereka.",
+    "heroLine2": "Sangat sedikit yang dapat menyebutkan siapa yang mengotorisasi agen tersebut.",
+    "lede": "Regulator di Singapura, Amerika Serikat, dan Uni Eropa telah menyepakati ekspektasi yang sama: setiap agen otonom memiliki identitas unik, dan setiap tindakan dapat dilacak kembali ke manusia yang mengotorisasinya. Named Principal memberikan setiap agen AI pemilik manusia yang ditunjuk, wewenang terbatas, persetujuan berbasis risiko, dan catatan siap audit, dimulai dengan mengetahui persis di mana posisi organisasi Anda hari ini.",
+    "ctaAssess": "Nilai kesiapan tata kelola Anda",
+    "ctaPilot": "Bicarakan dengan kami tentang pilot"
+  },
+  "common": {
+    "readMore": "Baca selengkapnya",
+    "learnMore": "Pelajari lebih lanjut",
+    "getStarted": "Mulai",
+    "signIn": "Masuk"
+  },
+  "security": {
+    "metaTitle": "Keamanan",
+    "metaDescription": "Bagaimana Named Principal sebenarnya menangani data — infrastruktur, kontrol akses, dan apa yang secara jujur masih ada dalam peta jalan.",
+    "eyebrow": "Bagaimana data sebenarnya ditangani",
+    "h1": "Keamanan, dinyatakan dengan jelas.",
+    "lede": "Belum ada sertifikasi yang bisa ditunjukkan, dan halaman ini tidak akan berpura-pura sebaliknya. Berikut adalah fakta — apa yang sebenarnya dilakukan infrastruktur hari ini, dan di mana celah yang jujur dibandingkan dengan apa yang akhirnya dibutuhkan oleh penerapan perusahaan.",
+    "infrastructure": {
+      "heading": "Infrastruktur",
+      "hostingTitle": "Hosting dan basis data",
+      "hostingBody": "Aplikasi ini dilayani oleh Vercel melalui HTTPS. Data disimpan dalam basis data PostgreSQL yang dikelola Supabase di kawasan Asia Tenggara (Singapura), dienkripsi saat diam dan dalam transit sesuai konfigurasi default platform.",
+      "authTitle": "Autentikasi",
+      "authBody": "Masuk ke produk yang terautentikasi (Daftar Agen AI, Paspor Agen, Persetujuan) menggunakan Google OAuth melalui Supabase Auth. Tidak ada kata sandi yang diatur, disimpan, atau ditangani oleh infrastruktur Named Principal sendiri — itu sepenuhnya diserahkan kepada Google.",
+      "emailTitle": "Pengiriman email",
+      "emailBody": "Email laporan dan pertanyaan pilot dikirim melalui Resend. Konten pesan melewati infrastruktur mereka dalam perjalanan untuk mengirimkan email; itu tidak disimpan oleh Named Principal melebihi apa yang diungkapkan dalam <privacyLink>pemberitahuan privasi</privacyLink>."
+    },
+    "accessControls": {
+      "heading": "Kontrol akses",
+      "rlsTitle": "Keamanan tingkat baris",
+      "rlsBody": "Permintaan klien yang terautentikasi dibatasi melalui kebijakan keamanan tingkat baris yang dibatasi pada organisasi pengguna. Kredensial sisi server istimewa — digunakan untuk tabel penangkapan prospek seperti laporan penilaian dan pertanyaan pilot — tidak pernah terekspos ke browser dan dibatasi pada rute server yang terkendali.",
+      "auditTitle": "Riwayat audit hanya tambah",
+      "auditBody": "Setiap tindakan material dalam produk yang terautentikasi — Paspor dibuat, status kontrol diubah, keputusan persetujuan dibuat — ditulis ke log audit hanya tambah yang terkait dengan pengguna dan organisasi yang bertindak.",
+      "enforcedTitle": "Akuntabilitas yang diberlakukan",
+      "enforcedBody": "Paspor Agen tidak dapat mencapai status Disetujui tanpa prinsipal manusia yang ditunjuk dan tanggal peninjauan yang dijadwalkan. Ini diberlakukan sebagai batasan basis data, bukan hanya validasi formulir — ini tetap berlaku bahkan jika perubahan kode di masa depan lupa untuk memeriksanya."
+    },
+    "status": {
+      "heading": "Di mana posisi kita hari ini",
+      "intro": "Pemeriksaan kematangan yang jujur dibandingkan dengan apa yang akhirnya dibutuhkan oleh penerapan perusahaan:",
+      "rowHttps": "HTTPS di mana-mana, enkripsi saat diam dan dalam transit",
+      "rowRls": "Keamanan tingkat baris di setiap tabel",
+      "rowAudit": "Pencatatan audit hanya tambah",
+      "rowOauth": "Masuk dengan Google OAuth",
+      "rowPentest": "Audit keamanan independen atau uji penetrasi",
+      "rowCert": "Sertifikasi SOC 2 / ISO 27001",
+      "rowSso": "SSO perusahaan (SAML / Microsoft Entra), SCIM",
+      "rowUptime": "Komitmen waktu aktif / ketersediaan formal",
+      "labelInPlace": "Sudah ada",
+      "labelNotYetDone": "Belum dilakukan",
+      "labelNotYetPursued": "Belum diupayakan",
+      "labelRoadmap": "Dalam peta jalan",
+      "labelNotPublished": "Belum dipublikasikan",
+      "note": "Daftar ini akan semakin pendek seiring waktu, dan setiap item akan berpindah ke \"Sudah ada\" ketika benar-benar terwujud — tidak sebelum itu."
+    },
+    "reporting": {
+      "heading": "Melaporkan masalah keamanan",
+      "body": "Jika Anda menemukan kerentanan, kirim email langsung ke <emailLink>{email}</emailLink> dengan apa yang Anda temukan dan cara mereproduksinya. Belum ada program bug bounty, tetapi setiap laporan dibaca, dan temuan asli akan diperbaiki dan diberi kredit jika Anda mau."
+    },
+    "footerAssessment": "Penilaian",
+    "footerPrivacy": "Pemberitahuan privasi",
+    "footerMethodology": "Metodologi"
+  }
+}

@@ -1,0 +1,77 @@
+{
+  "nav": {
+    "assessment": "Penilaian",
+    "profiler": "Profil Risiko Ejen",
+    "methodology": "Metodologi",
+    "controls": "Perpustakaan Kawalan",
+    "examples": "Contoh",
+    "pilot": "Perintis",
+    "estate": "Estet Ejen",
+    "privacy": "Privasi",
+    "security": "Keselamatan"
+  },
+  "home": {
+    "eyebrow": "Dua belas kawalan · enam minit",
+    "heroLine1": "Kebanyakan organisasi boleh menamakan dasar AI mereka.",
+    "heroLine2": "Sangat sedikit yang boleh menamakan siapa yang memberi kuasa kepada ejen tersebut.",
+    "lede": "Pihak berkuasa pengawalseliaan di Singapura, Amerika Syarikat dan Kesatuan Eropah telah bersetuju dengan jangkaan yang sama: setiap ejen autonomi membawa identiti unik, dan setiap tindakan dapat dikesan kembali kepada manusia yang memberi kuasa kepadanya. Named Principal memberikan setiap ejen AI seorang pemilik manusia yang dinamakan, kuasa terhad, kelulusan berasaskan risiko, dan rekod sedia audit, bermula dengan mengetahui dengan tepat kedudukan organisasi anda hari ini.",
+    "ctaAssess": "Nilai kesediaan tadbir urus anda",
+    "ctaPilot": "Berbincang dengan kami mengenai perintis"
+  },
+  "common": {
+    "readMore": "Baca lagi",
+    "learnMore": "Ketahui lebih lanjut",
+    "getStarted": "Mula",
+    "signIn": "Log masuk"
+  },
+  "security": {
+    "metaTitle": "Keselamatan",
+    "metaDescription": "Bagaimana Named Principal sebenarnya mengendalikan data — infrastruktur, kawalan akses, dan apa yang secara jujur masih dalam pelan hala tuju.",
+    "eyebrow": "Bagaimana data sebenarnya dikendalikan",
+    "h1": "Keselamatan, dinyatakan dengan jelas.",
+    "lede": "Tiada pensijilan untuk ditunjukkan lagi, dan halaman ini tidak akan berpura-pura sebaliknya. Berikut adalah fakta — apa yang infrastruktur sebenarnya lakukan hari ini, dan di mana jurang jujur berbanding apa yang diperlukan oleh penggunaan perusahaan akhirnya.",
+    "infrastructure": {
+      "heading": "Infrastruktur",
+      "hostingTitle": "Pengehosan dan pangkalan data",
+      "hostingBody": "Aplikasi ini dilayan oleh Vercel melalui HTTPS. Data disimpan dalam pangkalan data PostgreSQL yang diuruskan oleh Supabase di rantau Asia Tenggara (Singapura), disulitkan semasa rehat dan transit mengikut konfigurasi lalai platform.",
+      "authTitle": "Pengesahan",
+      "authBody": "Log masuk ke produk yang disahkan (Estet Ejen AI, Pasport Ejen, Kelulusan) menggunakan Google OAuth melalui Supabase Auth. Tiada kata laluan ditetapkan, disimpan, atau dikendalikan oleh infrastruktur Named Principal sendiri — itu diserahkan sepenuhnya kepada Google.",
+      "emailTitle": "Penghantaran e-mel",
+      "emailBody": "E-mel laporan dan pertanyaan perintis dihantar melalui Resend. Kandungan mesej melalui infrastruktur mereka semasa transit untuk menghantar e-mel; ia tidak disimpan oleh Named Principal melebihi apa yang didedahkan dalam <privacyLink>notis privasi</privacyLink>."
+    },
+    "accessControls": {
+      "heading": "Kawalan akses",
+      "rlsTitle": "Keselamatan peringkat baris",
+      "rlsBody": "Permintaan klien yang disahkan dihadkan melalui dasar keselamatan peringkat baris yang terhad kepada organisasi pengguna. Kelayakan sisi pelayan istimewa — digunakan untuk jadual penangkapan petunjuk seperti laporan penilaian dan pertanyaan perintis — tidak pernah didedahkan kepada pelayar dan terhad kepada laluan pelayan terkawal.",
+      "auditTitle": "Sejarah audit tambah sahaja",
+      "auditBody": "Setiap tindakan material dalam produk yang disahkan — Pasport dicipta, status kawalan diubah, keputusan kelulusan dibuat — ditulis ke log audit tambah sahaja yang dikaitkan dengan pengguna dan organisasi yang bertindak.",
+      "enforcedTitle": "Akauntabiliti yang dikuatkuasakan",
+      "enforcedBody": "Pasport Ejen tidak boleh mencapai status Diluluskan tanpa prinsipal manusia yang dinamakan dan tarikh semakan yang dijadualkan. Ini dikuatkuasakan sebagai kekangan pangkalan data, bukan sekadar pengesahan borang — ia kekal walaupun perubahan kod masa depan terlupa untuk memeriksanya."
+    },
+    "status": {
+      "heading": "Di mana kedudukan kita hari ini",
+      "intro": "Semakan kematangan yang jujur berbanding apa yang diperlukan oleh penggunaan perusahaan akhirnya:",
+      "rowHttps": "HTTPS di mana-mana, penyulitan semasa rehat dan transit",
+      "rowRls": "Keselamatan peringkat baris pada setiap jadual",
+      "rowAudit": "Pengelogan audit tambah sahaja",
+      "rowOauth": "Log masuk Google OAuth",
+      "rowPentest": "Audit keselamatan bebas atau ujian penembusan",
+      "rowCert": "Pensijilan SOC 2 / ISO 27001",
+      "rowSso": "SSO perusahaan (SAML / Microsoft Entra), SCIM",
+      "rowUptime": "Komitmen masa operasi / ketersediaan formal",
+      "labelInPlace": "Sedia ada",
+      "labelNotYetDone": "Belum dilakukan",
+      "labelNotYetPursued": "Belum diusahakan",
+      "labelRoadmap": "Dalam pelan hala tuju",
+      "labelNotPublished": "Belum diterbitkan",
+      "note": "Senarai ini akan menjadi lebih pendek dari semasa ke semasa, dan setiap item akan beralih kepada \"Sedia ada\" apabila ia benar-benar tepat — bukan sebelum itu."
+    },
+    "reporting": {
+      "heading": "Melaporkan isu keselamatan",
+      "body": "Jika anda menemui kelemahan, e-mel terus kepada <emailLink>{email}</emailLink> dengan apa yang anda temui dan cara mengulanginya. Belum ada program ganjaran pepijat lagi, tetapi setiap laporan dibaca, dan penemuan sebenar akan dibaiki dan diberi kredit jika anda mahu."
+    },
+    "footerAssessment": "Penilaian",
+    "footerPrivacy": "Notis privasi",
+    "footerMethodology": "Metodologi"
+  }
+}
