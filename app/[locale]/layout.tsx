@@ -94,9 +94,17 @@ export default async function LocaleLayout({
   setRequestLocale(locale);
   const messages = await getMessages();
 
+  // Arabic is the only RTL locale configured today. dir correctly
+  // flips text flow and native form controls; it does not, on its
+  // own, mirror the custom CSS layouts across this codebase — see
+  // i18n/routing.js for the full explanation of what's covered and
+  // what isn't yet.
+  const dir = locale === "ar" ? "rtl" : "ltr";
+
   return (
     <html
       lang={locale}
+      dir={dir}
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">

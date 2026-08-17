@@ -27,6 +27,7 @@ const LANGUAGES = [
   { code: "ms", label: "Bahasa Melayu" },
   { code: "id", label: "Bahasa Indonesia" },
   { code: "ta", label: "தமிழ்" },
+  { code: "ar", label: "العربية" },
 ];
 
 const STYLE = `
