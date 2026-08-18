@@ -1,22 +1,35 @@
-import { CONTROL_LIBRARY, TIER_LABELS } from "../../../lib/controlLibrary";
-import PublicNav from "../../../components/PublicNav";
-
 /**
  * Control library — Named Principal
  * © 2026 Aseem Mohan. All rights reserved.
  *
- * INSTALL AT: app/controls/page.jsx
+ * INSTALL AT: app/[locale]/controls/page.jsx  (replaces existing)
  *
- * Plain Server Component, same reasoning as /methodology — static
- * content, no interactivity beyond native <details>/<summary>, so no
- * client/server split needed.
+ * Converted to pull text from the translation system, using the
+ * slimmed lib/controlLibrary.js for structure only (ref, domain,
+ * tier codes). Each control's ref (e.g. "AUD-01") maps to a
+ * translation key by stripping the hyphen (AUD01), used to look up
+ * all nine display fields per control.
+ *
+ * tierBadges() now resolves soonerAt as an array of tier codes
+ * through the same translated tier labels the appliesFrom badge
+ * uses, rather than the previous hardcoded English fragment — this
+ * is also a genuine fix, not just a translation pass: soonerAt used
+ * to bypass tier-label capitalization entirely.
  */
 
-export const metadata = {
-  title: "Control Library",
-  description: "All twelve controls — objective, rationale, implementation guidance, evidence expected, and which risk tier first requires each one.",
-  alternates: { canonical: "https://www.namedprincipal.com/controls" },
-};
+import { getTranslations } from "next-intl/server";
+import { CONTROL_LIBRARY, DOMAIN_ORDER } from "../../../lib/controlLibrary";
+import PublicNav from "../../../components/PublicNav";
+
+export async function generateMetadata({ params }) {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "controls" });
+  return {
+    title: t("metaTitle"),
+    description: t("metaDescription"),
+    alternates: { canonical: "https://www.namedprincipal.com/controls" },
+  };
+}
 
 const CSS = `
 @import url('https://fonts.googleapis.com/css2?family=Archivo:wght@600;800&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap');
@@ -36,21 +49,6 @@ const CSS = `
 .ctl-page *, .ctl-page *::before, .ctl-page *::after { box-sizing:border-box; }
 .ctl-shell { max-width:860px; margin:0 auto; padding:0 22px 90px; }
 
-/* Prominent banner linking to the Five Rules page. Deliberately a
-   simple, ordinary in-flow block — no position:fixed, no rotation.
-   The previous version used position:fixed + rotate(), which is a
-   known source of cross-browser inconsistency (any ancestor element
-   that later gets a CSS transform silently breaks fixed positioning,
-   since that ancestor becomes the new containing block instead of
-   the viewport). This version can't suffer from that class of bug at
-   all, because it doesn't use either technique. It also, separately,
-   used the class name ".ctl-badge" -- already used elsewhere on this
-   page for the small "Must from Contained" pills -- so the two rules
-   collided and the later one silently won. Renamed to avoid any
-   possibility of that happening again.
-   A gentle pulse, not a strobe: rapid flashing is a documented
-   seizure trigger for photosensitive users, so this pulses slowly,
-   and stops entirely for anyone with prefers-reduced-motion set. */
 .ctl-rules-banner {
   display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;
   background: var(--indigo); border-radius: 6px;
@@ -75,16 +73,6 @@ const CSS = `
 @media (prefers-reduced-motion: reduce) {
   .ctl-rules-banner { animation: none; }
 }
-
-.ctl-bar {
-  display:flex; align-items:center; justify-content:space-between; gap:14px;
-  padding:14px 0; border-bottom:1px solid var(--rule);
-  font-family:'IBM Plex Mono',monospace; font-size:11px;
-  letter-spacing:0.1em; text-transform:uppercase; color:var(--slate);
-}
-.ctl-bar b { color:var(--ink); font-weight:500; }
-.ctl-bar a { color:var(--indigo); text-decoration:none; margin-left:16px; }
-.ctl-bar a:hover { text-decoration:underline; }
 
 .ctl-hero { padding:48px 0 8px; max-width:680px; }
 .ctl-eyebrow { font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:0.14em; text-transform:uppercase; color:var(--indigo); margin-bottom:16px; }
@@ -131,15 +119,26 @@ const CSS = `
 }
 `;
 
-function tierBadges(c) {
+const TIER_KEY = { contained: "tierContained", elevated: "tierElevated", high: "tierHigh", critical: "tierCritical" };
+const DOMAIN_KEY = { INV: "domainINV", IDN: "domainIDN", ENT: "domainENT", CRD: "domainCRD", AUD: "domainAUD", LFC: "domainLFC" };
+
+function tierBadges(c, t) {
   const badges = [];
-  badges.push(<span className="ctl-badge must" key="must">Must from {TIER_LABELS[c.appliesFrom]}</span>);
-  if (c.soonerAt) badges.push(<span className="ctl-badge rec" key="rec">Recommended from {c.soonerAt}</span>);
+  badges.push(
+    <span className="ctl-badge must" key="must">{t("mustFrom")} {t(TIER_KEY[c.appliesFrom])}</span>
+  );
+  if (c.soonerAt) {
+    const label = c.soonerAt.map((tier) => t(TIER_KEY[tier])).join(` ${t("andWord")} `);
+    badges.push(<span className="ctl-badge rec" key="rec">{t("recommendedFrom")} {label}</span>);
+  }
   return badges;
 }
 
-export default function ControlLibraryPage() {
-  const domainOrder = [...new Set(CONTROL_LIBRARY.map(c => c.domain))];
+export default async function ControlLibraryPage({ params }) {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "controls" });
+  const tf = await getTranslations({ locale, namespace: "footer" });
+  const tir = await getTranslations({ locale, namespace: "identityRules" });
 
   return (
     <div className="ctl-page">
@@ -147,78 +146,80 @@ export default function ControlLibraryPage() {
       <PublicNav current="/controls" />
       <div className="ctl-shell">
         <div className="ctl-hero">
-          <p className="ctl-eyebrow">The twelve controls, in full</p>
-          <h1>What each control actually requires.</h1>
+          <p className="ctl-eyebrow">{t("eyebrow")}</p>
+          <h1>{t("h1")}</h1>
           <p className="ctl-lede">
-            Every control referenced by the assessment and the risk profiler, expanded: what it's for,
-            why it matters, how to implement it, and what evidence an auditor would expect to see. See{" "}
-            <a href="/methodology" style={{ color: "var(--indigo)" }}>the methodology page</a> for how
-            these get selected per risk tier.
+            {t("ledeBefore")}{" "}
+            <a href="/methodology" style={{ color: "var(--indigo)" }}>{t("ledeLinkText")}</a>{" "}
+            {t("ledeAfter")}
           </p>
         </div>
 
         <div className="ctl-rules-banner">
           <div className="ctl-rules-banner-text">
             <span className="ctl-rules-banner-dot" />
-            <p>New: <b>Five Rules for Agent Identity</b> — the plain-English version of everything below.</p>
+            <p>{t("bannerBody")} <b>{t("bannerBold")}</b> {t("bannerRest")}</p>
           </div>
-          <a href="/identity-rules">Read the five rules →</a>
+          <a href="/identity-rules">{t("bannerLink")}</a>
         </div>
 
-        {domainOrder.map(domainId => {
-          const items = CONTROL_LIBRARY.filter(c => c.domain === domainId);
+        {DOMAIN_ORDER.map((domainId) => {
+          const items = CONTROL_LIBRARY.filter((c) => c.domain === domainId);
           return (
             <div className="ctl-domain-group" key={domainId}>
               <div className="ctl-domain-head">
                 <span className="ctl-domain-id">{domainId}</span>
-                <h2>{items[0].domainName}</h2>
+                <h2>{t(DOMAIN_KEY[domainId])}</h2>
               </div>
-              {items.map(c => (
-                <details className="ctl-item" id={c.ref} key={c.ref}>
-                  <summary>
-                    <span className="ctl-item-title">
-                      <span className="ctl-ref">{c.ref}</span>
-                      <span className="ctl-name">{c.name}</span>
-                    </span>
-                    <span className="ctl-badges">{tierBadges(c)}</span>
-                  </summary>
-                  <div className="ctl-body">
-                    <div className="ctl-field">
-                      <div className="ctl-field-label">Objective</div>
-                      <p>{c.objective}</p>
-                    </div>
-                    <div className="ctl-field">
-                      <div className="ctl-field-label">Why it matters</div>
-                      <p>{c.rationale}</p>
-                    </div>
-                    <div className="ctl-field">
-                      <div className="ctl-field-label">Implementation</div>
-                      <p>{c.implementation}</p>
-                    </div>
-                    <div className="ctl-field">
-                      <div className="ctl-field-label">Evidence an auditor would expect</div>
-                      <p>{c.evidence}</p>
-                    </div>
-                    <div className="ctl-field">
-                      <div className="ctl-field-label">Framework mappings</div>
-                      <div className="ctl-fw-grid">
-                        <div className="ctl-fw-chip"><b>IMDA</b><span>{c.frameworks.imda}</span></div>
-                        <div className="ctl-fw-chip"><b>MAS</b><span>{c.frameworks.mas}</span></div>
-                        <div className="ctl-fw-chip"><b>NIST</b><span>{c.frameworks.nist}</span></div>
-                        <div className="ctl-fw-chip"><b>ISO/IEC 42001</b><span>{c.frameworks.iso}</span></div>
-                        <div className="ctl-fw-chip"><b>EU AI Act</b><span>{c.frameworks.eu}</span></div>
+              {items.map((c) => {
+                const key = c.ref.replace("-", "");
+                return (
+                  <details className="ctl-item" id={c.ref} key={c.ref}>
+                    <summary>
+                      <span className="ctl-item-title">
+                        <span className="ctl-ref">{c.ref}</span>
+                        <span className="ctl-name">{t(`${key}.name`)}</span>
+                      </span>
+                      <span className="ctl-badges">{tierBadges(c, t)}</span>
+                    </summary>
+                    <div className="ctl-body">
+                      <div className="ctl-field">
+                        <div className="ctl-field-label">{t("fieldObjective")}</div>
+                        <p>{t(`${key}.objective`)}</p>
+                      </div>
+                      <div className="ctl-field">
+                        <div className="ctl-field-label">{t("fieldWhyItMatters")}</div>
+                        <p>{t(`${key}.rationale`)}</p>
+                      </div>
+                      <div className="ctl-field">
+                        <div className="ctl-field-label">{t("fieldImplementation")}</div>
+                        <p>{t(`${key}.implementation`)}</p>
+                      </div>
+                      <div className="ctl-field">
+                        <div className="ctl-field-label">{t("fieldEvidence")}</div>
+                        <p>{t(`${key}.evidence`)}</p>
+                      </div>
+                      <div className="ctl-field">
+                        <div className="ctl-field-label">{t("fieldFrameworks")}</div>
+                        <div className="ctl-fw-grid">
+                          <div className="ctl-fw-chip"><b>IMDA</b><span>{t(`${key}.fwImda`)}</span></div>
+                          <div className="ctl-fw-chip"><b>MAS</b><span>{t(`${key}.fwMas`)}</span></div>
+                          <div className="ctl-fw-chip"><b>NIST</b><span>{t(`${key}.fwNist`)}</span></div>
+                          <div className="ctl-fw-chip"><b>ISO/IEC 42001</b><span>{t(`${key}.fwIso`)}</span></div>
+                          <div className="ctl-fw-chip"><b>EU AI Act</b><span>{t(`${key}.fwEu`)}</span></div>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </details>
-              ))}
+                  </details>
+                );
+              })}
             </div>
           );
         })}
 
         <div className="ctl-foot">
-          <p>Risk model version 2026.1. Last reviewed July 2026. Framework mappings are indicative — confirm current text for your jurisdiction and sector.</p>
-          <p>© 2026 Aseem Mohan · <a href="/">Assessment</a> · <a href="/methodology">Methodology</a> · <a href="/identity-rules">Five Rules for Agent Identity</a> · <a href="/privacy">Privacy notice</a></p>
+          <p>{t("footerVersion")}</p>
+          <p>© 2026 Aseem Mohan · <a href="/">{tf("assessment")}</a> · <a href="/methodology">{tf("methodology")}</a> · <a href="/identity-rules">{tir("eyebrow")}</a> · <a href="/privacy">{tf("privacy")}</a></p>
         </div>
       </div>
     </div>
