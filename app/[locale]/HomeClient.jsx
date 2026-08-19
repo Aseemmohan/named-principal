@@ -376,6 +376,12 @@ const MAX = QUESTIONS.length * 3;
 const REF_TO_NUM = Object.fromEntries(QUESTIONS.map((q, i) => [q.ref, i + 1]));
 const DOMAIN_NAME_KEY = { INV: "domainINVName", IDN: "domainIDNName", ENT: "domainENTName", CRD: "domainCRDName", AUD: "domainAUDName", LFC: "domainLFCName" };
 const DOMAIN_IMDA_KEY = { INV: "domainINVImda", IDN: "domainIDNImda", ENT: "domainENTImda", CRD: "domainCRDImda", AUD: "domainAUDImda", LFC: "domainLFCImda" };
+const DOMAIN_PREMISE_KEY = { INV: "domainINVPremise", IDN: "domainIDNPremise", ENT: "domainENTPremise", CRD: "domainCRDPremise", AUD: "domainAUDPremise", LFC: "domainLFCPremise" };
+// Maps each framework's key (imda/mas/nist/iso/eu) to the translation
+// key SUFFIX used per domain — combined with a domain code to build
+// the full key, e.g. DOMAIN_FW_SUFFIX.mas + "CRD" -> "domainCRDMas".
+const DOMAIN_FW_SUFFIX = { imda: "Imda", mas: "Mas", nist: "Nist", iso: "Iso", eu: "Eu" };
+const TIER_CODE_TO_NUM = { T0: 0, T1: 1, T2: 2, T3: 3 };
 
 function tierFor(score) {
   return TIERS.find((t) => score >= t.min && score <= t.max) || TIERS[0];
@@ -717,7 +723,13 @@ function Ledger({ answers, activeIndex }) {
   );
 }
 
+const FW_KEY_TO_NUM = { imda: 1, mas: 2, nist: 3, iso: 4, eu: 5 };
+const STATUS_CODE_KEY = { MET: "statusMet", PARTIAL: "statusPartial", GAP: "statusGap" };
+
 function Report({ answers, onRestart }) {
+  const t = useTranslations("home");
+  const tm = useTranslations("methodology");
+  const tf = useTranslations("footer");
   const [email, setEmail] = useState("");
   const [org, setOrg] = useState("");
   const [sent, setSent] = useState(false);
@@ -729,6 +741,7 @@ function Report({ answers, onRestart }) {
     [answers]
   );
   const tier = tierFor(total);
+  const tierNum = TIER_CODE_TO_NUM[tier.code];
   const domains = useMemo(() => domainScores(answers), [answers]);
 
   const gaps = useMemo(
@@ -771,29 +784,29 @@ function Report({ answers, onRestart }) {
       <div className="agr-band">
         <div className="agr-band-top">
           <h2 className="agr-tier">
-            <small>Readiness tier {tier.code}</small>
-            {tier.label}
+            <small>{t("readinessTierLabel")} {tier.code}</small>
+            {t(`tier${tierNum}Label`)}
           </h2>
           <div className="agr-score">
             <b>{total}</b> / {MAX}
           </div>
         </div>
-        <p>{tier.summary}</p>
+        <p>{t(`tier${tierNum}Summary`)}</p>
         <div className="agr-next">
-          <strong>Do this next.</strong> {tier.priority}
+          <strong>{t("doNextLabel")}</strong> {t(`tier${tierNum}Priority`)}
         </div>
       </div>
 
       <section className="agr-sec">
-        <h3>Where the score comes from</h3>
-        <p className="agr-sec-note">Six control domains, two questions each, scored zero to three.</p>
+        <h3>{t("scoreSourceH3")}</h3>
+        <p className="agr-sec-note">{t("scoreSourceNote")}</p>
         <div className="agr-dom">
           {domains.map((d) => (
             <div className="agr-dom-row" key={d.id}>
               <span className="mono" style={{ fontSize: "0.78rem", color: "var(--slate)" }}>{d.id}</span>
               <span className="agr-dom-name">
-                {d.name}
-                <span>{d.premise}</span>
+                {t(DOMAIN_NAME_KEY[d.id])}
+                <span>{t(DOMAIN_PREMISE_KEY[d.id])}</span>
               </span>
               <span className="agr-meter">
                 <i style={{ width: `${d.pct}%`, background: meterColour(d.pct) }} />
@@ -805,55 +818,57 @@ function Report({ answers, onRestart }) {
       </section>
 
       <section className="agr-sec">
-        <h3>Regulatory exposure</h3>
-        <p className="agr-sec-note">
-          Indicative mapping of your weakest domain against each framework's agent-relevant provisions.
-        </p>
+        <h3>{t("regExposureH3")}</h3>
+        <p className="agr-sec-note">{t("regExposureNote")}</p>
         <div className="agr-matrix">
           <table>
             <thead>
               <tr>
-                <th>Framework</th>
-                <th>Status</th>
-                <th>Weakest linked provision</th>
+                <th>{t("tblFramework")}</th>
+                <th>{t("tblStatus")}</th>
+                <th>{t("tblWeakestProvision")}</th>
               </tr>
             </thead>
             <tbody>
-              {fwRows.map((fw) => (
-                <tr key={fw.key}>
-                  <td className="agr-fw-name">
-                    {fw.name}
-                    <span>{fw.note}</span>
-                  </td>
-                  <td>
-                    <span className={`agr-pill ${fw.status.tone}`}>{fw.status.code}</span>
-                  </td>
-                  <td style={{ color: "var(--slate)" }}>{fw.weakest.frameworks[fw.key]}</td>
-                </tr>
-              ))}
+              {fwRows.map((fw) => {
+                const fwNum = FW_KEY_TO_NUM[fw.key];
+                const weakestDomainKey = `domain${fw.weakest.id}${DOMAIN_FW_SUFFIX[fw.key]}`;
+                return (
+                  <tr key={fw.key}>
+                    <td className="agr-fw-name">
+                      {t(`fw${fwNum}Name`)}
+                      <span>{t(`fw${fwNum}Note`)}</span>
+                    </td>
+                    <td>
+                      <span className={`agr-pill ${fw.status.tone}`}>{tm(STATUS_CODE_KEY[fw.status.code])}</span>
+                    </td>
+                    <td style={{ color: "var(--slate)" }}>{t(weakestDomainKey)}</td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
       </section>
 
       <section className="agr-sec">
-        <h3>Three controls to fix first</h3>
-        <p className="agr-sec-note">Ordered by weakness, not by effort.</p>
+        <h3>{t("topGapsH3")}</h3>
+        <p className="agr-sec-note">{t("topGapsNote")}</p>
         <div className="agr-gaps">
           {gaps.map((g) => {
-            const d = DOMAINS.find((x) => x.id === g.domain);
+            const num = REF_TO_NUM[g.ref];
             return (
               <div className="agr-gap" key={g.ref}>
                 <div className="agr-gap-head">
                   <span>{g.ref}</span>
                   <span>·</span>
-                  <span>{d.name}</span>
+                  <span>{t(DOMAIN_NAME_KEY[g.domain])}</span>
                   <span>·</span>
-                  <span>scored {g.score}/3</span>
+                  <span>{t("scoredWord")} {g.score}/3</span>
                 </div>
-                <p>{g.text}</p>
+                <p>{t(`q${num}Text`)}</p>
                 <p className="agr-fix">
-                  Current state: {g.options[g.score].replace(/\.$/, "")}. Target: {g.options[3].replace(/\.$/, "")}.
+                  {t("currentStateLabel")} {t(`q${num}Opt${g.score}`).replace(/\.$/, "")}. {t("targetLabel")} {t(`q${num}Opt3`).replace(/\.$/, "")}.
                 </p>
               </div>
             );
@@ -862,73 +877,59 @@ function Report({ answers, onRestart }) {
       </section>
 
       <div className="agr-capture">
-        <h3>Get the full report</h3>
-        <p>
-          The full pack maps all twelve controls to IMDA, MAS, NIST, ISO 42001 and the EU AI Act,
-          with the evidence each provision expects and a suggested order of work.
-        </p>
+        <h3>{t("getReportH3")}</h3>
+        <p>{t("getReportBody")}</p>
         {!sent ? (
           <>
             <div className="agr-form">
               <input
                 className="agr-input"
                 type="email"
-                placeholder="Work email"
+                placeholder={t("emailPlaceholder")}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                aria-label="Work email"
+                aria-label={t("emailPlaceholder")}
               />
               <input
                 className="agr-input"
                 type="text"
-                placeholder="Organisation"
+                placeholder={t("orgPlaceholder")}
                 value={org}
                 onChange={(e) => setOrg(e.target.value)}
-                aria-label="Organisation"
+                aria-label={t("orgPlaceholder")}
               />
               <button className="agr-cta" onClick={handleSend} disabled={busy}>
-                {busy ? "Requesting" : "Request the report"}
+                {busy ? t("requestingButton") : t("requestReportButton")}
               </button>
             </div>
             <p className="agr-note">
-              Nothing is sent anywhere until you ask for the report. No account needed.{" "}
-              <a href="/privacy" style={{ color: "var(--indigo)" }}>Privacy notice</a>
+              {t("reportPrivacyNote")}{" "}
+              <a href="/privacy" style={{ color: "var(--indigo)" }}>{tf("privacy")}</a>
             </p>
             {failed && (
               <p className="agr-note" style={{ color: "var(--alert)" }}>
-                That didn&apos;t save. Check your connection and try again.
+                {t("reportFailedNote")}
               </p>
             )}
-            {/* Moved out of the <p> above — a <div> nested inside a <p> is
-                invalid HTML and can cause the browser to close the <p>
-                early in unpredictable ways. Same visual placement, valid
-                markup. */}
             <div className="agr-cross">
-              <p className="agr-eyebrow" style={{ marginBottom: 0 }}>For a single agent</p>
-              <h3>Deploying one specific agent?</h3>
-              <p>
-                Nine questions about that agent returns its risk tier, the controls that become
-                mandatory before deployment, the OWASP agentic risks it exposes you to, and the
-                provisions that attach. Nothing leaves your browser.
-              </p>
-              <a className="agr-cross-btn" href="/agent">Open the agent risk profiler →</a>
+              <p className="agr-eyebrow" style={{ marginBottom: 0 }}>{t("singleAgentEyebrow")}</p>
+              <h3>{t("singleAgentH3")}</h3>
+              <p>{t("singleAgentBody")}</p>
+              <a className="agr-cross-btn" href="/agent">{t("singleAgentLink")}</a>
             </div>
           </>
         ) : (
           <div className="agr-done">
-            Request received. The full report will be sent to {email} within one working day.
+            {t("requestReceived", { email })}
           </div>
         )}
       </div>
 
       <div className="agr-foot">
-        <p>
-          Mappings are indicative and current as at July 2026. They support readiness planning and are
-          not a compliance determination or legal advice.
-        </p>
+        <p>{t("mappingsDisclaimer")}</p>
         <p>© 2026 {OWNER}. All rights reserved.</p>
         <p>
-          <button className="agr-restart" onClick={onRestart}>Start again</button>
+          <button className="agr-restart" onClick={onRestart}>{t("startAgainButton")}</button>
         </p>
       </div>
     </div>
