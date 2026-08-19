@@ -2,31 +2,33 @@
  * Sample AI Estate — Named Principal
  * © 2026 Aseem Mohan. All rights reserved.
  *
- * INSTALL AT: app/sample-estate/page.jsx
+ * INSTALL AT: app/[locale]/sample-estate/page.jsx  (replaces existing)
  *
- * Public proof, per the v2.0 strategy document's "Essential public
- * proof" list: an interactive sample Agent Estate with realistic
- * synthetic data. Mirrors the real authenticated /estate page's actual
- * structure (stat row, status filters, table columns) rather than an
- * idealised marketing version — same principle as /sample-passport.
+ * Converted to pull text from the translation system. Agent 1
+ * ("Vendor Invoice Reconciliation Agent") reuses the exact same
+ * translated string as sample-passport's h1, since this row links
+ * through to that page — kept identical on purpose, not
+ * independently translated, so the two pages stay in sync.
  *
- * The "Vendor Invoice Reconciliation Agent" row deliberately matches
- * /sample-passport, so a visitor can click through from the estate
- * list to that exact agent's full Passport, same as the real product.
- *
- * Plain Server Component — static content, no auth, no client state
- * (the status filter is a set of anchor-style visual states shown at
- * once via CSS rather than interactive JS, since this is a fixed
- * demonstration, not a live filter over real data).
+ * Tier values (elevated/contained/high/critical) now display through
+ * the same translated tier labels used everywhere else on the site
+ * (methodology namespace), rather than the raw lowercase English word
+ * shown in the previous version — a small consistency fix alongside
+ * the translation, not just a language swap.
  */
 
+import { getTranslations } from "next-intl/server";
 import PublicNav from "../../../components/PublicNav";
 
-export const metadata = {
-  title: "Sample AI Estate",
-  description: "A worked example of the AI Estate — the governed inventory of registered agents, their status, risk tier and ownership.",
-  alternates: { canonical: "https://www.namedprincipal.com/sample-estate" },
-};
+export async function generateMetadata({ params }) {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "sampleEstate" });
+  return {
+    title: t("metaTitle"),
+    description: t("metaDescription"),
+    alternates: { canonical: "https://www.namedprincipal.com/sample-estate" },
+  };
+}
 
 const CSS = `
 @import url('https://fonts.googleapis.com/css2?family=Archivo:wght@600;800&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap');
@@ -91,22 +93,33 @@ const CSS = `
 }
 `;
 
-const STATUS_LABEL = { draft: "Draft", pending_approval: "Pending approval", approved: "Approved", retired: "Retired" };
 const STATUS_TONE = { draft: "idle", pending_approval: "signal", approved: "verify", retired: "idle" };
 const TIER_TONE = { contained: "verify", elevated: "signal", high: "alert", critical: "alert" };
+const TIER_LABEL_KEY = { contained: "tierContained", elevated: "tierElevated", high: "tierHigh", critical: "tierCritical" };
+const STATUS_LABEL_KEY = { draft: "statusDraft", pending_approval: "statusPendingApproval", approved: "statusApproved", retired: "statusRetired" };
 
-const AGENTS = [
-  { name: "Vendor Invoice Reconciliation Agent", env: "production", status: "approved", tier: "elevated", principal: "Priya Sharma", review: "19 Jan 2027", link: "/sample-passport" },
-  { name: "Customer Support Triage Bot", env: "production", status: "approved", tier: "contained", principal: "Wei Ling Tan", review: "02 Nov 2026", link: null },
-  { name: "Contract Clause Extraction Agent", env: "staging", status: "pending_approval", tier: "high", principal: "David Oyelaran", review: "—", link: null },
-  { name: "Marketing Content Drafting Assistant", env: "production", status: "approved", tier: "contained", principal: "Sarah Mitchell", review: "14 Dec 2026", link: null },
-  { name: "Infrastructure Auto-Remediation Agent", env: "staging", status: "draft", tier: "critical", principal: null, review: "—", link: null },
-  { name: "HR Policy Q&A Chatbot", env: "production", status: "approved", tier: "contained", principal: "James Whitfield", review: "08 Mar 2027", link: null },
-  { name: "Sales Lead Enrichment Agent", env: "production", status: "pending_approval", tier: "elevated", principal: "Amara Okafor", review: "—", link: null },
-  { name: "Legacy Reporting Bot", env: "production", status: "retired", tier: "contained", principal: "Marcus Chen", review: "—", link: null },
-];
+export default async function SampleEstatePage({ params }) {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "sampleEstate" });
+  const ts = await getTranslations({ locale, namespace: "sampleShared" });
+  const tc = await getTranslations({ locale, namespace: "controls" });
+  const tf = await getTranslations({ locale, namespace: "footer" });
 
-export default function SampleEstatePage() {
+  // Agent 1's name reuses sampleShared.agentVendorInvoice (identical
+  // to sample-passport's h1) rather than a separate translation, so
+  // the linked-through page stays in sync. Person names, dates, and
+  // environment values (production/staging) stay literal.
+  const AGENTS = [
+    { nameKey: null, sharedName: true, env: "production", status: "approved", tier: "elevated", principal: "Priya Sharma", review: "19 Jan 2027", link: "/sample-passport" },
+    { nameKey: "agent2Name", env: "production", status: "approved", tier: "contained", principal: "Wei Ling Tan", review: "02 Nov 2026", link: null },
+    { nameKey: "agent3Name", env: "staging", status: "pending_approval", tier: "high", principal: "David Oyelaran", review: "—", link: null },
+    { nameKey: "agent4Name", env: "production", status: "approved", tier: "contained", principal: "Sarah Mitchell", review: "14 Dec 2026", link: null },
+    { nameKey: "agent5Name", env: "staging", status: "draft", tier: "critical", principal: null, review: "—", link: null },
+    { nameKey: "agent6Name", env: "production", status: "approved", tier: "contained", principal: "James Whitfield", review: "08 Mar 2027", link: null },
+    { nameKey: "agent7Name", env: "production", status: "pending_approval", tier: "elevated", principal: "Amara Okafor", review: "—", link: null },
+    { nameKey: "agent8Name", env: "production", status: "retired", tier: "contained", principal: "Marcus Chen", review: "—", link: null },
+  ];
+
   const total = AGENTS.length;
   const pending = AGENTS.filter((a) => a.status === "pending_approval").length;
   const highCritical = AGENTS.filter((a) => a.tier === "high" || a.tier === "critical").length;
@@ -115,43 +128,52 @@ export default function SampleEstatePage() {
   return (
     <div className="sest">
       <style>{CSS}</style>
-      <div className="sest-banner">Sample data — illustrative only, not a real organisation</div>
+      <div className="sest-banner">{ts("bannerText")}</div>
       <PublicNav current="/sample-estate" />
       <div className="sest-shell">
         <div className="sest-hero">
-          <p className="sest-eyebrow">AI Estate — worked example</p>
-          <h1>Every registered agent, in one place.</h1>
-          <p className="sest-lede">
-            This is what the governed inventory actually looks like — status, risk tier, named
-            principal and next review date, for every agent an organisation has registered. Click the
-            first row to see its full Agent Passport.
-          </p>
+          <p className="sest-eyebrow">{t("eyebrow")}</p>
+          <h1>{t("h1")}</h1>
+          <p className="sest-lede">{t("lede")}</p>
         </div>
 
         <div className="sest-stat-row">
-          <div className="sest-stat"><span>Total registered</span><b>{total}</b></div>
-          <div className="sest-stat"><span>Pending approval</span><b>{pending}</b></div>
-          <div className="sest-stat"><span>High / critical</span><b>{highCritical}</b></div>
-          <div className="sest-stat"><span>Without a named principal</span><b>{orphans.length}</b></div>
+          <div className="sest-stat"><span>{t("statTotalRegistered")}</span><b>{total}</b></div>
+          <div className="sest-stat"><span>{t("statPendingApproval")}</span><b>{pending}</b></div>
+          <div className="sest-stat"><span>{t("statHighCritical")}</span><b>{highCritical}</b></div>
+          <div className="sest-stat"><span>{t("statNoPrincipal")}</span><b>{orphans.length}</b></div>
         </div>
 
         {orphans.length > 0 && (
           <div className="sest-warn">
-            <strong>{orphans.length} agent</strong> has no named human principal on record — it cannot
-            reach Approved status until that's fixed. This is enforced at the database layer, not just
-            a reminder on screen.
+            {t.rich("warnText", {
+              count: orphans.length,
+              b: (chunks) => <strong>{chunks}</strong>,
+            })}
           </div>
         )}
 
         <div className="sest-card">
           <table className="sest-tbl">
             <thead>
-              <tr><th>Agent</th><th>Status</th><th>Tier</th><th>Named principal</th><th>Next review</th></tr>
+              <tr>
+                <th>{t("tblAgent")}</th>
+                <th>{t("tblStatus")}</th>
+                <th>{t("tblTier")}</th>
+                <th>{t("tblPrincipal")}</th>
+                <th>{t("tblNextReview")}</th>
+              </tr>
             </thead>
             <tbody>
-              {AGENTS.map((a) => (
-                <tr key={a.name}>
-                  <EstateRow a={a} />
+              {AGENTS.map((a, i) => (
+                <tr key={i}>
+                  <EstateRow
+                    a={a}
+                    name={a.sharedName ? ts("agentVendorInvoice") : t(a.nameKey)}
+                    statusLabel={t(STATUS_LABEL_KEY[a.status])}
+                    tierLabel={tc(TIER_LABEL_KEY[a.tier])}
+                    unassignedLabel={t("unassignedLabel")}
+                  />
                 </tr>
               ))}
             </tbody>
@@ -159,34 +181,34 @@ export default function SampleEstatePage() {
         </div>
 
         <div className="sest-cta">
-          <p>Eight agents here. A real estate might have fifty — this is how you'd finally see all of them.</p>
-          <a className="sest-btn" href="/pilot">Start a pilot on your own estate →</a>
+          <p>{t("ctaBody")}</p>
+          <a className="sest-btn" href="/pilot">{t("ctaLink")}</a>
         </div>
 
         <div className="sest-foot">
-          <p>© 2026 Aseem Mohan · <a href="/">Assessment</a> · <a href="/sample-passport">Sample Passport</a> · <a href="/methodology">Methodology</a></p>
+          <p>© 2026 Aseem Mohan · <a href="/">{tf("assessment")}</a> · <a href="/sample-passport">{t("footerSamplePassportLink")}</a> · <a href="/methodology">{tf("methodology")}</a></p>
         </div>
       </div>
     </div>
   );
 }
 
-function EstateRow({ a }) {
+function EstateRow({ a, name, statusLabel, tierLabel, unassignedLabel }) {
   return (
     <>
       <td>
         {a.link ? (
           <a href={a.link} style={{ color: "var(--indigo)", textDecoration: "none", fontWeight: 600 }}>
-            {a.name}
+            {name}
           </a>
         ) : (
-          <span className="sest-agent-name">{a.name}</span>
+          <span className="sest-agent-name">{name}</span>
         )}
         <span className="sest-agent-env">{a.env}</span>
       </td>
-      <td><span className={`sest-pill ${STATUS_TONE[a.status]}`}>{STATUS_LABEL[a.status]}</span></td>
-      <td><span className={`sest-pill ${TIER_TONE[a.tier]}`}>{a.tier}</span></td>
-      <td>{a.principal || <span style={{ color: "var(--alert)" }}>Unassigned</span>}</td>
+      <td><span className={`sest-pill ${STATUS_TONE[a.status]}`}>{statusLabel}</span></td>
+      <td><span className={`sest-pill ${TIER_TONE[a.tier]}`}>{tierLabel}</span></td>
+      <td>{a.principal || <span style={{ color: "var(--alert)" }}>{unassignedLabel}</span>}</td>
       <td>{a.review}</td>
     </>
   );

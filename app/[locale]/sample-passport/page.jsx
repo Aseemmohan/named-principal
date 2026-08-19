@@ -2,29 +2,30 @@
  * Sample Agent Passport — Named Principal
  * © 2026 Aseem Mohan. All rights reserved.
  *
- * INSTALL AT: app/sample-passport/page.jsx
+ * INSTALL AT: app/[locale]/sample-passport/page.jsx  (replaces existing)
  *
- * Public proof, per the v2.0 strategy document's "Essential public
- * proof" list: a sample Agent Passport showing identity, owner,
- * configuration, risk, approval, controls and evidence.
- *
- * DELIBERATELY mirrors the real authenticated Passport page's actual
- * section structure (Accountability / Purpose / Risk / Required
- * controls / Decision / History) rather than a prettier marketing
- * mockup — this is what the product actually produces, not an
- * idealised version of it. All data below is synthetic and clearly
- * labelled as such throughout.
- *
- * Plain Server Component — static content, no auth, no client state.
+ * Converted to pull text from the translation system. Person names
+ * (Priya Sharma, Raj Kumar), email addresses, dates, control refs,
+ * and the model version number stay as literal data — genuine
+ * identifiers, not display language. Control names (INV-01's
+ * "Central agent register" etc.) are reused verbatim from the
+ * already-translated controls namespace rather than retranslated.
+ * The "Elevated" risk tier pill reuses methodology.tierElevated for
+ * the same reason.
  */
 
+import { getTranslations } from "next-intl/server";
 import PublicNav from "../../../components/PublicNav";
 
-export const metadata = {
-  title: "Sample Agent Passport",
-  description: "A worked example of what an Agent Passport actually looks like — identity, accountability, risk, controls, approval and history.",
-  alternates: { canonical: "https://www.namedprincipal.com/sample-passport" },
-};
+export async function generateMetadata({ params }) {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "samplePassport" });
+  return {
+    title: t("metaTitle"),
+    description: t("metaDescription"),
+    alternates: { canonical: "https://www.namedprincipal.com/sample-passport" },
+  };
+}
 
 const CSS = `
 @import url('https://fonts.googleapis.com/css2?family=Archivo:wght@600;800&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap');
@@ -72,8 +73,6 @@ const CSS = `
 .spp-ctl-meta { font-size:0.78rem; color:var(--mute); margin-top:4px; }
 .spp-status { font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:0.05em; padding:3px 8px; text-transform:uppercase; height:fit-content; }
 .spp-status.implemented { background:var(--verify-soft); color:var(--verify); }
-.spp-status.in_progress { background:var(--signal-soft); color:var(--signal); }
-.spp-status.missing { background:var(--alert-soft); color:var(--alert); }
 .spp-status.exception { background:var(--signal-soft); color:var(--signal); }
 
 .spp-hist { padding:10px 0; border-bottom:1px solid #EDEFF3; font-size:0.85rem; }
@@ -94,83 +93,85 @@ const CSS = `
 }
 `;
 
-const CONTROLS = [
-  { ref: "INV-01", name: "Central agent register", status: "implemented", meta: "Owner: platform-team@example.com · closed 3 weeks ago" },
-  { ref: "IDN-01", name: "Unique agent identity", status: "implemented", meta: "Owner: iam@example.com · closed 3 weeks ago" },
-  { ref: "IDN-02", name: "Named human principal", status: "implemented", meta: "Priya Sharma confirmed at registration" },
-  { ref: "ENT-01", name: "Least-privilege entitlements", status: "implemented", meta: "Owner: finance-systems@example.com · closed 2 weeks ago" },
-  { ref: "CRD-01", name: "Vaulted, short-lived credentials", status: "implemented", meta: "Owner: platform-team@example.com · closed 4 days ago" },
-  { ref: "AUD-01", name: "Append-only action log", status: "implemented", meta: "Owner: security-eng@example.com · closed 1 week ago" },
-  { ref: "LFC-01", name: "Scheduled recertification", status: "exception",
-    exceptionReason: "New agent, first recertification cycle not due until the standard 90-day mark. Tracked via the finance-systems team's existing quarterly access review instead of a separate campaign for now.",
-    exceptionExpiry: "18 Oct 2026", exceptionApprovedBy: "raj.kumar@example.com (CISO)" },
-];
+export default async function SamplePassportPage({ params }) {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "samplePassport" });
+  const ts = await getTranslations({ locale, namespace: "sampleShared" });
+  const tc = await getTranslations({ locale, namespace: "controls" });
+  const tm = await getTranslations({ locale, namespace: "methodology" });
+  const tf = await getTranslations({ locale, namespace: "footer" });
 
-const HISTORY = [
-  { when: "12 Jul 2026, 09:14", what: "passport_created", who: "priya.sharma@example.com" },
-  { when: "12 Jul 2026, 09:41", what: "control_updated — INV-01 marked implemented", who: "priya.sharma@example.com" },
-  { when: "15 Jul 2026, 14:02", what: "control_updated — IDN-01 marked implemented", who: "iam-team@example.com" },
-  { when: "18 Jul 2026, 11:30", what: "status_pending_approval", who: "priya.sharma@example.com" },
-  { when: "19 Jul 2026, 16:47", what: "status_approved", who: "raj.kumar@example.com (CISO)" },
-];
+  // Control refs, status values, and dates stay as literal data; only
+  // display text (name, meta) is pulled from translations, reusing
+  // the already-translated control names from the controls namespace.
+  const CONTROLS = [
+    { ref: "INV-01", nameKey: "INV01", status: "implemented", metaKey: "ctl1Meta" },
+    { ref: "IDN-01", nameKey: "IDN01", status: "implemented", metaKey: "ctl2Meta" },
+    { ref: "IDN-02", nameKey: "IDN02", status: "implemented", metaKey: "ctl3Meta" },
+    { ref: "ENT-01", nameKey: "ENT01", status: "implemented", metaKey: "ctl4Meta" },
+    { ref: "CRD-01", nameKey: "CRD01", status: "implemented", metaKey: "ctl5Meta" },
+    { ref: "AUD-01", nameKey: "AUD01", status: "implemented", metaKey: "ctl6Meta" },
+    {
+      ref: "LFC-01", nameKey: "LFC01", status: "exception",
+      exceptionExpiry: "18 Oct 2026", exceptionApprovedBy: "raj.kumar@example.com (CISO)",
+    },
+  ];
 
-export default function SamplePassportPage() {
+  const HISTORY = [
+    { when: "12 Jul 2026, 09:14", whatKey: "hist1What", who: "priya.sharma@example.com" },
+    { when: "12 Jul 2026, 09:41", whatKey: "hist2What", who: "priya.sharma@example.com" },
+    { when: "15 Jul 2026, 14:02", whatKey: "hist3What", who: "iam-team@example.com" },
+    { when: "18 Jul 2026, 11:30", whatKey: "hist4What", who: "priya.sharma@example.com" },
+    { when: "19 Jul 2026, 16:47", whatKey: "hist5What", who: "raj.kumar@example.com (CISO)" },
+  ];
+
   return (
     <div className="spp">
       <style>{CSS}</style>
-      <div className="spp-banner">Sample data — illustrative only, not a real organisation</div>
+      <div className="spp-banner">{ts("bannerText")}</div>
       <PublicNav current="/sample-passport" />
       <div className="spp-shell">
         <div className="spp-hero">
-          <p className="spp-eyebrow">Agent Passport — worked example</p>
-          <h1>Vendor Invoice Reconciliation Agent</h1>
-          <p className="spp-lede">
-            This is what a real Agent Passport looks like once it's been through registration,
-            risk assessment, control tracking and approval — the actual product, not a mockup of it.
-          </p>
-          <span className="spp-pill verify">Approved</span>
-          <span className="spp-pill signal">Elevated</span>
+          <p className="spp-eyebrow">{t("eyebrow")}</p>
+          <h1>{ts("agentVendorInvoice")}</h1>
+          <p className="spp-lede">{t("lede")}</p>
+          <span className="spp-pill verify">{t("pillApproved")}</span>
+          <span className="spp-pill signal">{tc("tierElevated")}</span>
         </div>
 
-        <h2>Accountability</h2>
+        <h2>{t("secAccountability")}</h2>
         <div className="spp-card spp-grid">
-          <div className="spp-field"><div className="spp-field-label">Named principal</div><p>Priya Sharma, Finance Systems Lead</p></div>
-          <div className="spp-field"><div className="spp-field-label">Business owner</div><p>Finance Operations</p></div>
-          <div className="spp-field"><div className="spp-field-label">Technical owner</div><p>Platform Engineering</p></div>
-          <div className="spp-field"><div className="spp-field-label">Next review</div><p>19 Jan 2027</p></div>
+          <div className="spp-field"><div className="spp-field-label">{t("fieldNamedPrincipal")}</div><p>{t("principalValue")}</p></div>
+          <div className="spp-field"><div className="spp-field-label">{t("fieldBusinessOwner")}</div><p>{t("businessOwnerValue")}</p></div>
+          <div className="spp-field"><div className="spp-field-label">{t("fieldTechnicalOwner")}</div><p>{t("technicalOwnerValue")}</p></div>
+          <div className="spp-field"><div className="spp-field-label">{t("fieldNextReview")}</div><p>19 Jan 2027</p></div>
         </div>
 
-        <h2>Purpose</h2>
+        <h2>{t("secPurpose")}</h2>
         <div className="spp-card">
           <div className="spp-field" style={{ marginBottom: 12 }}>
-            <div className="spp-field-label">Business purpose</div>
-            <p>Matches incoming vendor invoices against purchase orders and flags discrepancies for human review before payment release.</p>
+            <div className="spp-field-label">{t("fieldBusinessPurpose")}</div>
+            <p>{t("purposeBody")}</p>
           </div>
           <div className="spp-field" style={{ marginBottom: 12 }}>
-            <div className="spp-field-label">Permitted tasks</div>
-            <p>Read invoice data from the AP inbox. Cross-reference against the PO system. Write a match/discrepancy flag. Draft (not send) a query email to the vendor contact on file.</p>
+            <div className="spp-field-label">{t("fieldPermittedTasks")}</div>
+            <p>{t("permittedBody")}</p>
           </div>
           <div className="spp-field">
-            <div className="spp-field-label">Explicitly prohibited</div>
-            <p>Cannot approve or release payment. Cannot modify PO records. Cannot send vendor communications without human review.</p>
+            <div className="spp-field-label">{t("fieldProhibited")}</div>
+            <p>{t("prohibitedBody")}</p>
           </div>
         </div>
 
-        <h2>Risk</h2>
+        <h2>{t("secRisk")}</h2>
         <div className="spp-card">
-          <p style={{ margin: "0 0 10px", fontSize: "0.9rem" }}>
-            Elevated. This agent can write to internal systems and drafts (but does not send) external
-            communications — meaningful capability, with no path to irreversible financial action.
-          </p>
-          <p style={{ margin: 0, fontSize: "0.85rem", color: "var(--slate)" }}>
-            Score 14 / 42 · assessed under model version 2026.1
-          </p>
+          <p style={{ margin: "0 0 10px", fontSize: "0.9rem" }}>{t("riskBody")}</p>
+          <p style={{ margin: 0, fontSize: "0.85rem", color: "var(--slate)" }}>{t("riskScoreLine")}</p>
         </div>
 
-        <h2>Required controls</h2>
+        <h2>{t("secRequiredControls")}</h2>
         <p style={{ fontSize: "0.85rem", color: "var(--mute)", margin: "0 0 10px" }}>
-          7 of 7 mandatory controls closed — 6 implemented, 1 under a current, complete exception.
-          This is what actually gates approval now, not just informational text.
+          {t("requiredControlsIntro")}
         </p>
         <div className="spp-card" style={{ padding: 0 }}>
           {CONTROLS.map((c) => (
@@ -178,19 +179,21 @@ export default function SamplePassportPage() {
               <div className="spp-ctl" style={{ padding: 0, border: 0 }}>
                 <div>
                   <span className="spp-ctl-ref">{c.ref}</span>
-                  <div className="spp-ctl-name">{c.name}</div>
-                  {c.meta && <div className="spp-ctl-meta">{c.meta}</div>}
+                  <div className="spp-ctl-name">{tc(`${c.nameKey}.name`)}</div>
+                  {c.metaKey && <div className="spp-ctl-meta">{t(c.metaKey)}</div>}
                 </div>
-                <span className={`spp-status ${c.status}`}>{c.status.replace("_", " ")}</span>
+                <span className={`spp-status ${c.status}`}>
+                  {c.status === "exception" ? t("statusException") : t("statusImplemented")}
+                </span>
               </div>
               {c.status === "exception" && (
                 <div style={{ marginTop: 10, padding: 12, background: "var(--signal-soft)", borderLeft: "3px solid var(--signal)" }}>
                   <div style={{ fontSize: "0.68rem", fontWeight: 600, letterSpacing: "0.06em", textTransform: "uppercase", color: "var(--signal)", marginBottom: 6 }}>
-                    Exception record
+                    {t("exceptionRecordLabel")}
                   </div>
-                  <p style={{ margin: "0 0 8px", fontSize: "0.85rem" }}>{c.exceptionReason}</p>
+                  <p style={{ margin: "0 0 8px", fontSize: "0.85rem" }}>{t("exceptionReasonText")}</p>
                   <p style={{ margin: 0, fontSize: "0.78rem", color: "var(--slate)" }}>
-                    Expires {c.exceptionExpiry} · Approved by {c.exceptionApprovedBy}
+                    {t("exceptionExpiresLabel")} {c.exceptionExpiry} · {t("exceptionApprovedByLabel")} {c.exceptionApprovedBy}
                   </p>
                 </div>
               )}
@@ -198,37 +201,28 @@ export default function SamplePassportPage() {
           ))}
         </div>
 
-        <h2>Decision</h2>
+        <h2>{t("secDecision")}</h2>
         <div className="spp-card">
-          <p style={{ margin: "0 0 10px", fontSize: "0.9rem" }}>
-            Approved 19 Jul 2026 by Raj Kumar (CISO).
-          </p>
-          <p style={{ margin: 0, fontSize: "0.9rem", color: "var(--slate)" }}>
-            Approval here required a named principal, a scheduled review date, and every mandatory
-            control closed — implemented, or under a complete, current exception. That's not
-            informational text; it's an actual gate. LFC-01's exception above (reason, expiry, named
-            approver) is what closed that control, not a status dropdown flipped without a record
-            behind it — an incomplete or expired exception would have kept this Passport blocked at
-            Pending approval.
-          </p>
+          <p style={{ margin: "0 0 10px", fontSize: "0.9rem" }}>{t("decisionBody1")}</p>
+          <p style={{ margin: 0, fontSize: "0.9rem", color: "var(--slate)" }}>{t("decisionBody2")}</p>
         </div>
 
-        <h2>History</h2>
+        <h2>{t("secHistory")}</h2>
         <div className="spp-card" style={{ padding: 0 }}>
           {HISTORY.map((h, i) => (
             <div className="spp-hist" key={i} style={{ padding: "12px 22px" }}>
-              <span className="spp-hist-when">{h.when}</span> — <strong>{h.what}</strong> by {h.who}
+              <span className="spp-hist-when">{h.when}</span> — <strong>{t(h.whatKey)}</strong> {t("byWord")} {h.who}
             </div>
           ))}
         </div>
 
         <div className="spp-cta">
-          <p>This is one agent, fully governed. A real pilot builds this for up to ten of yours in thirty days.</p>
-          <a className="spp-btn" href="/pilot">See the pilot →</a>
+          <p>{t("ctaBody")}</p>
+          <a className="spp-btn" href="/pilot">{t("ctaLink")}</a>
         </div>
 
         <div className="spp-foot">
-          <p>© 2026 Aseem Mohan · <a href="/">Assessment</a> · <a href="/sample-estate">Sample Estate</a> · <a href="/methodology">Methodology</a> · <a href="/controls">Control library</a></p>
+          <p>© 2026 Aseem Mohan · <a href="/">{tf("assessment")}</a> · <a href="/sample-estate">{t("footerSampleEstateLink")}</a> · <a href="/methodology">{tf("methodology")}</a> · <a href="/controls">{tf("controls")}</a></p>
         </div>
       </div>
     </div>
