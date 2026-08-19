@@ -4,14 +4,24 @@
  * Pilot page — Named Principal
  * © 2026 Aseem Mohan. All rights reserved.
  *
- * INSTALL AT: app/pilot/PilotClient.jsx  (moved from app/pilot/page.jsx —
- * see app/pilot/page.jsx for the new thin Server Component wrapper that
- * gives this route its own title/description instead of inheriting the
- * homepage's generic metadata, which is what was happening before this
- * split — a real bug caught in review, not a design choice.)
+ * INSTALL AT: app/[locale]/pilot/PilotClient.jsx  (replaces existing)
+ *
+ * FIRST CLIENT COMPONENT converted tonight — every page before this
+ * one was a plain Server Component using the async getTranslations()
+ * API. This one has real form state (useState, fetch, submit
+ * handling), so it needs next-intl's useTranslations() hook instead —
+ * the synchronous, client-side API that reads from the
+ * NextIntlClientProvider context already set up in the locale layout.
+ * Same translation content, different mechanism to reach it.
+ *
+ * The two-link "Not sure what this produces?" paragraph uses t.rich()
+ * with two separate tags (passportLink, estateLink) — the same
+ * mechanism used for single-link cases elsewhere, just with two tag
+ * mappings provided instead of one.
  */
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import PublicNav from "../../../components/PublicNav";
 
 const CSS = `
@@ -80,6 +90,9 @@ const CSS = `
 `;
 
 export default function PilotPage() {
+  const t = useTranslations("pilot");
+  const tf = useTranslations("footer");
+
   const [form, setForm] = useState({ name: "", email: "", organisation: "", role: "", estimatedAgents: "", message: "" });
   const [busy, setBusy] = useState(false);
   const [sent, setSent] = useState(false);
@@ -100,7 +113,7 @@ export default function PilotPage() {
         body: JSON.stringify(form),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Something went wrong.");
+      if (!res.ok) throw new Error(data.error || t("genericError"));
       setSent(true);
     } catch (err) {
       setError(err.message);
@@ -109,96 +122,95 @@ export default function PilotPage() {
     }
   }
 
+  const rows = [
+    ["rowScopeLabel", "rowScopeBody"],
+    ["rowDiscoverLabel", "rowDiscoverBody"],
+    ["rowAssessLabel", "rowAssessBody"],
+    ["rowGovernLabel", "rowGovernBody"],
+    ["rowDemonstrateLabel", "rowDemonstrateBody"],
+    ["rowReportLabel", "rowReportBody"],
+    ["rowSuccessLabel", "rowSuccessBody"],
+  ];
+
   return (
     <div className="plt">
       <style>{CSS}</style>
       <PublicNav current="/pilot" />
       <div className="plt-shell">
         <div className="plt-hero">
-          <p className="plt-eyebrow">30-day pilot</p>
-          <h1>Prove it on your real AI estate, not a demo.</h1>
-          <p className="plt-lede">
-            One organisation, up to ten agents, one governance workflow. In thirty days: a real
-            inventory, real risk profiles, real Agent Passports with named owners, and one live
-            demonstration of what happens when an approved agent's configuration changes.
-          </p>
+          <p className="plt-eyebrow">{t("eyebrow")}</p>
+          <h1>{t("h1")}</h1>
+          <p className="plt-lede">{t("lede")}</p>
         </div>
 
         <section className="plt-sec">
-          <h2>What's included</h2>
+          <h2>{t("whatsIncludedH2")}</h2>
           <div className="plt-tbl-wrap">
             <table className="plt-tbl">
               <tbody>
-                <tr><td>Scope</td><td>One organisation, up to 10 agents, defined stakeholders, one governance workflow.</td></tr>
-                <tr><td>Discover</td><td>An inventory workshop plus CSV, API, or manual candidate capture — whatever fits how your estate is actually tracked today.</td></tr>
-                <tr><td>Assess</td><td>The organisational readiness assessment, plus individual risk profiles for the agents in scope.</td></tr>
-                <tr><td>Govern</td><td>Agent Passports, named principals, controls, evidence, and a real approval decision on each agent.</td></tr>
-                <tr><td>Demonstrate</td><td>One material-change scenario, and one recertification workflow, run end to end.</td></tr>
-                <tr><td>Report</td><td>A CISO/CIO findings summary, a board-level readout, and a 90-day roadmap.</td></tr>
-                <tr><td>Success criteria</td><td>Estate completeness, ownership coverage, approval turnaround time, control closure rate, and whether the executive summary was actually useful.</td></tr>
+                {rows.map(([labelKey, bodyKey]) => (
+                  <tr key={labelKey}><td>{t(labelKey)}</td><td>{t(bodyKey)}</td></tr>
+                ))}
               </tbody>
             </table>
           </div>
           <div className="plt-hyp">
-            <strong>Founding Design Partner Pilot: SGD 5,000-10,000.</strong> Final pricing depends on
-            the number and complexity of agents, stakeholder workshops, and integration requirements.
-            Scope and price are agreed before work begins.
+            <strong>{t("pricingBold")}</strong> {t("pricingBody")}
           </div>
           <p style={{ marginTop: 16, fontSize: "0.87rem" }}>
-            Not sure what this actually produces? <a href="/sample-passport" style={{ color: "var(--indigo)" }}>See a worked example of an Agent Passport</a> or <a href="/sample-estate" style={{ color: "var(--indigo)" }}>the full sample Estate →</a>
+            {t.rich("notSureText", {
+              passportLink: (chunks) => <a href="/sample-passport" style={{ color: "var(--indigo)" }}>{chunks}</a>,
+              estateLink: (chunks) => <a href="/sample-estate" style={{ color: "var(--indigo)" }}>{chunks}</a>,
+            })}
           </p>
         </section>
 
         <section className="plt-sec">
-          <h2>Request a pilot</h2>
+          <h2>{t("requestPilotH2")}</h2>
           <div className="plt-form-card">
             {sent ? (
-              <div className="plt-done">
-                Received — thank you. A confirmation has been sent to your email, and I'll follow up
-                directly to discuss scope.
-              </div>
+              <div className="plt-done">{t("doneMessage")}</div>
             ) : (
               <form onSubmit={submit}>
                 <div className="plt-row">
                   <div className="plt-field">
-                    <label htmlFor="name">Name</label>
+                    <label htmlFor="name">{t("labelName")}</label>
                     <input id="name" required value={form.name} onChange={(e) => update("name", e.target.value)} />
                   </div>
                   <div className="plt-field">
-                    <label htmlFor="email">Work email</label>
+                    <label htmlFor="email">{t("labelEmail")}</label>
                     <input id="email" type="email" required value={form.email} onChange={(e) => update("email", e.target.value)} />
                   </div>
                 </div>
                 <div className="plt-row">
                   <div className="plt-field">
-                    <label htmlFor="organisation">Organisation</label>
+                    <label htmlFor="organisation">{t("labelOrganisation")}</label>
                     <input id="organisation" value={form.organisation} onChange={(e) => update("organisation", e.target.value)} />
                   </div>
                   <div className="plt-field">
-                    <label htmlFor="role">Your role</label>
-                    <input id="role" placeholder="e.g. CISO, Head of GRC, IAM Lead" value={form.role} onChange={(e) => update("role", e.target.value)} />
+                    <label htmlFor="role">{t("labelRole")}</label>
+                    <input id="role" placeholder={t("placeholderRole")} value={form.role} onChange={(e) => update("role", e.target.value)} />
                   </div>
                 </div>
                 <div className="plt-field">
-                  <label htmlFor="estimatedAgents">Roughly how many AI agents do you have today?</label>
+                  <label htmlFor="estimatedAgents">{t("labelEstimatedAgents")}</label>
                   <select id="estimatedAgents" value={form.estimatedAgents} onChange={(e) => update("estimatedAgents", e.target.value)}>
-                    <option value="">Prefer not to say / not sure</option>
-                    <option value="1-5">1-5</option>
-                    <option value="6-20">6-20</option>
-                    <option value="21-50">21-50</option>
-                    <option value="50+">50+</option>
+                    <option value="">{t("optAgentsBlank")}</option>
+                    <option value="1-5">{t("optAgents1to5")}</option>
+                    <option value="6-20">{t("optAgents6to20")}</option>
+                    <option value="21-50">{t("optAgents21to50")}</option>
+                    <option value="50+">{t("optAgents50plus")}</option>
                   </select>
                 </div>
                 <div className="plt-field">
-                  <label htmlFor="message">Anything specific you want the pilot to cover?</label>
+                  <label htmlFor="message">{t("labelMessage")}</label>
                   <textarea id="message" value={form.message} onChange={(e) => update("message", e.target.value)} />
                 </div>
                 <button className="plt-btn" type="submit" disabled={busy}>
-                  {busy ? "Sending…" : "Request a pilot"}
+                  {busy ? t("sendingButton") : t("submitButton")}
                 </button>
                 <p style={{ marginTop: 14, fontSize: "0.82rem", color: "var(--mute)" }}>
-                  You'll hear back within two business days to arrange a 30-minute scope discussion.
-                  No payment or commitment is required just for submitting this form.
+                  {t("responseExpectation")}
                 </p>
                 {error && <div className="plt-error">{error}</div>}
               </form>
@@ -207,7 +219,7 @@ export default function PilotPage() {
         </section>
 
         <div className="plt-foot">
-          <p>© 2026 Aseem Mohan · <a href="/">Assessment</a> · <a href="/methodology">Methodology</a> · <a href="/privacy">Privacy notice</a></p>
+          <p>© 2026 Aseem Mohan · <a href="/">{tf("assessment")}</a> · <a href="/methodology">{tf("methodology")}</a> · <a href="/privacy">{tf("privacy")}</a></p>
         </div>
       </div>
     </div>
