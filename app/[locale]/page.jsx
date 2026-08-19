@@ -1,31 +1,41 @@
+import { getTranslations } from "next-intl/server";
 import HomeClient from "./HomeClient";
 
 /**
  * Homepage — Named Principal
  * © 2026 Aseem Mohan.
  *
- * INSTALL AT: app/page.jsx  (replaces the existing file — the actual UI
- * moved to app/HomeClient.jsx, unchanged in behaviour)
+ * INSTALL AT: app/[locale]/page.jsx  (replaces existing)
  *
- * WHY THE SPLIT: metadata can only be exported from a Server Component,
- * and the existing homepage is "use client" (it holds interactive state
- * for the assessment). Rather than restructure that working component,
- * this file stays a thin Server Component that just adds the canonical
- * URL and renders the client component as a child.
+ * FIX: the previous version relied on inheriting title/description
+ * from the root layout's static defaults, since the homepage's
+ * correct English title happened to match those defaults exactly.
+ * That's no longer true once locale is in play — the root layout's
+ * metadata has always been static English, so every non-English
+ * visitor was silently getting an English browser tab title
+ * regardless of their chosen language. This now sets its own
+ * translated metadata explicitly, the same pattern every other page
+ * already uses, rather than depending on inheritance that was never
+ * actually locale-aware.
  *
- * Title and description aren't overridden here because the root
- * layout's defaults (app/layout.tsx) already are the homepage's
- * correct title and description — Next.js metadata inherits from the
- * nearest layout when a page doesn't set its own. Other routes (like
- * /agent) DO need their own override, since they need a different
- * title than the homepage default — see the same pattern applied there.
+ * ONE DETAIL WORTH FLAGGING: the root layout's title uses a template
+ * ("%s — Named Principal") that every other page's title gets wrapped
+ * in automatically. home.metaTitle already contains "Named Principal"
+ * as part of the translated string itself, so applying the template
+ * on top would produce a redundant, doubled title. Using
+ * `{ absolute: ... }` here deliberately bypasses the template for
+ * this one page, rather than letting a subtle formatting bug ship.
  */
 
-export const metadata = {
-  alternates: {
-    canonical: "https://www.namedprincipal.com",
-  },
-};
+export async function generateMetadata({ params }) {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "home" });
+  return {
+    title: { absolute: t("metaTitle") },
+    description: t("metaDescription"),
+    alternates: { canonical: "https://www.namedprincipal.com" },
+  };
+}
 
 export default function Home() {
   return <HomeClient />;

@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useMemo, useEffect, useRef } from "react";
+import { useTranslations } from "next-intl";
 import PublicNav from "../../components/PublicNav";
 
 /**
@@ -925,6 +926,7 @@ function Report({ answers, onRestart }) {
 }
 
 export default function AgentGovernanceReadiness() {
+  const t = useTranslations("home");
   const [stage, setStage] = useState("intro");
   const [index, setIndex] = useState(0);
   const [answers, setAnswers] = useState({});
@@ -963,22 +965,20 @@ export default function AgentGovernanceReadiness() {
         {stage === "intro" && (
           <>
             <div className="agr-hero agr-fade">
-              <p className="agr-eyebrow">Twelve controls · six minutes</p>
+              <p className="agr-eyebrow">{t("eyebrow")}</p>
               <h1>
-                Most organisations can name their AI policy.
+                {t("heroLine1")}
                 <br />
-                <em>Very few can name who authorised the agent.</em>
+                <em>{t("heroLine2")}</em>
               </h1>
-              <p className="agr-lede">
-                Regulators in Singapore, the US and the EU have converged on the same expectation: every
-                autonomous agent carries a unique identity, and every action traces back to a human who
-                authorised it. Named Principal gives every AI agent a named human owner, bounded
-                authority, risk-based approval, and an audit-ready record — starting with knowing exactly
-                where your organisation stands today.
-              </p>
+              <p className="agr-lede">{t("lede")}</p>
 
               <div className="agr-stats">
-                {STATS.map((s, i) => (
+                {[
+                  { value: STATS[0].value, caption: t("stat1Caption"), source: t("stat1Source") },
+                  { value: STATS[1].value, caption: t("stat2Caption"), source: t("stat2Source") },
+                  { value: STATS[2].value, caption: t("stat3Caption"), source: t("stat3Source") },
+                ].map((s, i) => (
                   <div className="agr-stat" key={i}>
                     <b>{s.value}</b>
                     <span>{s.caption}</span>
@@ -989,50 +989,49 @@ export default function AgentGovernanceReadiness() {
 
               <div className="agr-cta-row">
                 <button className="agr-cta" onClick={startAssessment}>
-                  Assess your governance readiness
+                  {t("ctaAssess")}
                 </button>
                 <a className="agr-cta ghost" href={`mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent("AI agent governance — pilot enquiry")}`}>
-                  Talk to us about a pilot
+                  {t("ctaPilot")}
                 </a>
               </div>
               <p className="agr-note">
-                We store your email and your scores. Nothing else. No agent names, no system details.{" "}
-                <a href="/privacy" style={{ color: "var(--indigo)" }}>Privacy notice</a>
+                {t("privacyNote")}{" "}
+                <a href="/privacy" style={{ color: "var(--indigo)" }}>{t("privacyLinkText")}</a>
               </p>
             </div>
 
             <section className="agr-section agr-fade">
-              <h2>How it works</h2>
-              <p className="agr-section-lede">
-                Three steps from "we think we have some AI agents" to a governed, auditable estate.
-              </p>
+              <h2>{t("howItWorksH2")}</h2>
+              <p className="agr-section-lede">{t("howItWorksLede")}</p>
               <div className="agr-steps">
                 <div className="agr-step">
-                  <span className="agr-step-n">STEP 1</span>
-                  <h3>Assess</h3>
-                  <p>Score your organisation across twelve controls, or one specific agent across nine risk factors — six minutes, no account needed.</p>
+                  <span className="agr-step-n">{t("step1Label")}</span>
+                  <h3>{t("step1Title")}</h3>
+                  <p>{t("step1Body")}</p>
                 </div>
                 <div className="agr-step">
-                  <span className="agr-step-n">STEP 2</span>
-                  <h3>Register</h3>
-                  <p>Save the result as a persistent Agent Passport — identity, purpose, named owner, and the controls its risk tier requires.</p>
+                  <span className="agr-step-n">{t("step2Label")}</span>
+                  <h3>{t("step2Title")}</h3>
+                  <p>{t("step2Body")}</p>
                 </div>
                 <div className="agr-step">
-                  <span className="agr-step-n">STEP 3</span>
-                  <h3>Approve & audit</h3>
-                  <p>A named principal signs off before an agent goes live. Every decision is timestamped and kept — evidence, not memory.</p>
+                  <span className="agr-step-n">{t("step3Label")}</span>
+                  <h3>{t("step3Title")}</h3>
+                  <p>{t("step3Body")}</p>
                 </div>
               </div>
             </section>
 
             <section className="agr-section agr-fade">
-              <h2>The three modules</h2>
-              <p className="agr-section-lede">
-                Two are free to use with nothing stored unless you ask. The third — the persistent
-                record — needs an account, because a record that isn't kept isn't a record.
-              </p>
+              <h2>{t("modulesH2")}</h2>
+              <p className="agr-section-lede">{t("modulesLede")}</p>
               <div className="agr-modules">
-                {MODULES.map((m) => (
+                {[
+                  { tone: MODULES[0].tone, tag: t("mod1Tag"), name: t("mod1Name"), body: t("mod1Body"), cta: t("mod1Cta"), href: MODULES[0].href },
+                  { tone: MODULES[1].tone, tag: t("mod2Tag"), name: t("mod2Name"), body: t("mod2Body"), cta: t("mod2Cta"), href: MODULES[1].href },
+                  { tone: MODULES[2].tone, tag: t("mod3Tag"), name: t("mod3Name"), body: t("mod3Body"), cta: t("mod3Cta"), href: MODULES[2].href },
+                ].map((m) => (
                   <div className="agr-module" key={m.name}>
                     <span className={`agr-module-tag ${m.tone}`}>{m.tag}</span>
                     <h3>{m.name}</h3>
@@ -1044,13 +1043,16 @@ export default function AgentGovernanceReadiness() {
             </section>
 
             <section className="agr-section agr-fade">
-              <h2>Framework coverage</h2>
-              <p className="agr-section-lede">
-                Every control maps to the provisions regulators and auditors already reference — one
-                assessment, five frameworks, kept current.
-              </p>
+              <h2>{t("fwCoverageH2")}</h2>
+              <p className="agr-section-lede">{t("fwCoverageLede")}</p>
               <div className="agr-fw-strip">
-                {FRAMEWORKS.map((fw) => (
+                {[
+                  { key: FRAMEWORKS[0].key, short: FRAMEWORKS[0].short, name: t("fw1Name"), note: t("fw1Note") },
+                  { key: FRAMEWORKS[1].key, short: FRAMEWORKS[1].short, name: t("fw2Name"), note: t("fw2Note") },
+                  { key: FRAMEWORKS[2].key, short: FRAMEWORKS[2].short, name: t("fw3Name"), note: t("fw3Note") },
+                  { key: FRAMEWORKS[3].key, short: FRAMEWORKS[3].short, name: t("fw4Name"), note: t("fw4Note") },
+                  { key: FRAMEWORKS[4].key, short: FRAMEWORKS[4].short, name: t("fw5Name"), note: t("fw5Note") },
+                ].map((fw) => (
                   <div className="agr-fw-chip" key={fw.key}>
                     <b>{fw.short}</b>{fw.name}
                     <span>{fw.note}</span>
@@ -1060,18 +1062,13 @@ export default function AgentGovernanceReadiness() {
             </section>
 
             <section className="agr-section agr-fade" style={{ paddingBottom: 56 }}>
-              <h2>Security & privacy, briefly</h2>
+              <h2>{t("securityH2")}</h2>
               <div className="agr-security-box">
+                <p>{t("securityP1")}</p>
                 <p>
-                  The agent risk profiler runs entirely in your browser — no network calls, no storage,
-                  nothing transmitted. Agent names and purposes describe your internal architecture, so
-                  they never leave your device.
-                </p>
-                <p>
-                  The organisational assessment stores only what you explicitly submit for a report:
-                  your email, your organisation name if given, and your scores. Never your individual
-                  answers. See the full <a href="/privacy">privacy notice</a> for what's collected, why,
-                  and how to have it deleted.
+                  {t.rich("securityP2", {
+                    privacyLink: (chunks) => <a href="/privacy">{chunks}</a>,
+                  })}
                 </p>
               </div>
             </section>
