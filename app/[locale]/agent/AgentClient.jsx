@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useMemo, useRef } from "react";
+import { useTranslations } from "next-intl";
 import { FACTORS, TIERS, CONTROLS, assess, encodeProfilerAnswers } from "../../../lib/riskModel";
 import PublicNav from "../../../components/PublicNav";
 
@@ -176,7 +177,14 @@ const CSS = `
 
 /* ============================ COMPONENT ============================ */
 
+// Maps each factor's stable id (from riskModel.js, e.g. "ACT") to its
+// translation key number (f1-f9) — built once from FACTORS' existing
+// order rather than a hardcoded list, so it stays correct even if
+// riskModel.js's array order is ever revisited.
+const FACTOR_TO_NUM = Object.fromEntries(FACTORS.map((f, i) => [f.id, i + 1]));
+
 export default function AgentRiskProfiler() {
+  const t = useTranslations("agent");
   const [name, setName] = useState("");
   const [purpose, setPurpose] = useState("");
   const [v, setV] = useState({});
@@ -228,59 +236,57 @@ export default function AgentRiskProfiler() {
       <PublicNav current="/agent" />
       <div className="ap-shell">
         <div className="ap-head">
-          <p className="ap-eyebrow">Nine questions · before you deploy</p>
-          <h1>What controls does this agent actually need?</h1>
-          <p className="ap-lede">
-            Describe one agent. This returns the risk tier, the OWASP agentic risks it exposes you to,
-            the controls that become mandatory, and the framework provisions that attach — as a record
-            you can put straight into a change ticket or an agent register.
-          </p>
+          <p className="ap-eyebrow">{t("eyebrow")}</p>
+          <h1>{t("h1")}</h1>
+          <p className="ap-lede">{t("lede")}</p>
           <div className="ap-local">
-            <strong>Nothing leaves your browser.</strong> No network calls, no storage, no analytics.
-            Agent names describe your internal architecture, so they stay on your device.
+            <strong>{t("localBold")}</strong> {t("localRest")}
           </div>
         </div>
 
         <div className="ap-name">
-          <input className="ap-input" placeholder="Agent name or identifier"
-            value={name} onChange={e => setName(e.target.value)} aria-label="Agent name" />
-          <input className="ap-input" placeholder="What it is for (one line)"
-            value={purpose} onChange={e => setPurpose(e.target.value)} aria-label="Agent purpose" />
+          <input className="ap-input" placeholder={t("namePlaceholder")}
+            value={name} onChange={e => setName(e.target.value)} aria-label={t("namePlaceholder")} />
+          <input className="ap-input" placeholder={t("purposePlaceholder")}
+            value={purpose} onChange={e => setPurpose(e.target.value)} aria-label={t("purposePlaceholder")} />
         </div>
 
         <div className="ap-live">
-          <span className="ap-live-l">Indicative tier</span>
+          <span className="ap-live-l">{t("indicativeTier")}</span>
           <span className="ap-live-r">
             <span className="ap-count">{answered}/{FACTORS.length}</span>
-            <span className={`ap-chip ${chipTone}`}>{chipText}</span>
+            <span className={`ap-chip ${chipTone}`}>{preview ? chipText : t("awaitingInput")}</span>
           </span>
         </div>
 
-        {FACTORS.map((f, idx) => (
-          <div className="ap-q" key={f.id}>
-            <div className="ap-q-head">
-              <span className="ap-q-id">{f.id}</span>
-              <span className="ap-q-label">{f.label} · {idx + 1} of {FACTORS.length}</span>
+        {FACTORS.map((f, idx) => {
+          const num = FACTOR_TO_NUM[f.id];
+          return (
+            <div className="ap-q" key={f.id}>
+              <div className="ap-q-head">
+                <span className="ap-q-id">{f.id}</span>
+                <span className="ap-q-label">{t(`f${num}Label`)} · {idx + 1} {t("ofWord")} {FACTORS.length}</span>
+              </div>
+              <h2>{t(`f${num}Q`)}</h2>
+              <p className="ap-q-help">{t(`f${num}Help`)}</p>
+              <div className="ap-opts">
+                {[0, 1, 2, 3].map((i) => (
+                  <button key={i} className={`ap-opt ${v[f.id] === i ? "on" : ""}`} onClick={() => pick(f.id, i)}>
+                    <span className="ap-opt-n">{i}</span>
+                    <span>{t(`f${num}Opt${i}`)}</span>
+                  </button>
+                ))}
+              </div>
             </div>
-            <h2>{f.q}</h2>
-            <p className="ap-q-help">{f.help}</p>
-            <div className="ap-opts">
-              {f.options.map((o, i) => (
-                <button key={i} className={`ap-opt ${v[f.id] === i ? "on" : ""}`} onClick={() => pick(f.id, i)}>
-                  <span className="ap-opt-n">{i}</span>
-                  <span>{o}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-        ))}
+          );
+        })}
 
         <div className="ap-go">
           <button className="ap-btn" onClick={generate} disabled={!complete}>
-            {complete ? "Generate the risk record" : `Answer all nine (${answered}/9)`}
+            {complete ? t("generateButton") : t("answerAllButton", { answered })}
           </button>
-          {done && <button className="ap-ghost" onClick={() => window.print()}>Print or save as PDF</button>}
-          {done && <button className="ap-ghost" onClick={reset}>Profile another agent</button>}
+          {done && <button className="ap-ghost" onClick={() => window.print()}>{t("printButton")}</button>}
+          {done && <button className="ap-ghost" onClick={reset}>{t("profileAnotherButton")}</button>}
         </div>
 
         {shown && (
