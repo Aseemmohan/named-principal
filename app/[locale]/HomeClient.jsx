@@ -369,6 +369,14 @@ const MODULES = [
 
 const MAX = QUESTIONS.length * 3;
 
+// Maps each question's ref (e.g. "AUD-01") to its translation key
+// number (q9), and each domain code to its translated name/IMDA
+// citation key — shared by both Ledger and the main run-stage render
+// below, rather than duplicated in each.
+const REF_TO_NUM = Object.fromEntries(QUESTIONS.map((q, i) => [q.ref, i + 1]));
+const DOMAIN_NAME_KEY = { INV: "domainINVName", IDN: "domainIDNName", ENT: "domainENTName", CRD: "domainCRDName", AUD: "domainAUDName", LFC: "domainLFCName" };
+const DOMAIN_IMDA_KEY = { INV: "domainINVImda", IDN: "domainIDNImda", ENT: "domainENTImda", CRD: "domainCRDImda", AUD: "domainAUDImda", LFC: "domainLFCImda" };
+
 function tierFor(score) {
   return TIERS.find((t) => score >= t.min && score <= t.max) || TIERS[0];
 }
@@ -675,21 +683,23 @@ const CSS = `
 /* ============================ COMPONENTS ============================ */
 
 function Ledger({ answers, activeIndex }) {
+  const t = useTranslations("home");
   const done = Object.keys(answers).length;
   return (
-    <aside className="agr-ledger" aria-label="Assessment record">
+    <aside className="agr-ledger" aria-label={t("ledgerAriaLabel")}>
       <div className="agr-ledger-head">
-        <span>Control record</span>
+        <span>{t("ledgerHeading")}</span>
         <span>{done}/{QUESTIONS.length}</span>
       </div>
       {QUESTIONS.map((q, i) => {
         const val = answers[q.ref];
         const state = i === activeIndex ? "is-live" : val !== undefined ? "is-done" : "";
+        const domainName = t(DOMAIN_NAME_KEY[q.domain]);
         return (
           <div key={q.ref} className={`agr-row ${state}`}>
             <span>{q.ref}</span>
             <span className="agr-row-dom">
-              {DOMAINS.find((d) => d.id === q.domain).name.split(" ")[0].toLowerCase()}
+              {domainName.split(" ")[0].toLowerCase()}
             </span>
             <span className="agr-pips" aria-hidden="true">
               {[0, 1, 2].map((p) => (
@@ -700,8 +710,8 @@ function Ledger({ answers, activeIndex }) {
         );
       })}
       <div className="agr-ledger-foot">
-        <span>Unattested</span>
-        <span>draft</span>
+        <span>{t("ledgerFootUnattested")}</span>
+        <span>{t("ledgerFootDraft")}</span>
       </div>
     </aside>
   );
@@ -1081,22 +1091,22 @@ export default function AgentGovernanceReadiness() {
             <div className="agr-card agr-fade" key={q.ref}>
               <div className="agr-qmeta">
                 <span className="agr-tag">{q.ref}</span>
-                <span>{domain.name}</span>
+                <span>{t(DOMAIN_NAME_KEY[q.domain])}</span>
                 <span>·</span>
-                <span>{index + 1} of {QUESTIONS.length}</span>
+                <span>{index + 1} {t("ofWord")} {QUESTIONS.length}</span>
               </div>
-              <h2 tabIndex={-1} ref={headingRef}>{q.text}</h2>
-              <p className="agr-help">{q.help}</p>
+              <h2 tabIndex={-1} ref={headingRef}>{t(`q${REF_TO_NUM[q.ref]}Text`)}</h2>
+              <p className="agr-help">{t(`q${REF_TO_NUM[q.ref]}Help`)}</p>
 
               <div className="agr-opts">
-                {q.options.map((opt, i) => (
+                {[0, 1, 2, 3].map((i) => (
                   <button
                     key={i}
                     className={`agr-opt ${answers[q.ref] === i ? "is-picked" : ""}`}
                     onClick={() => choose(i)}
                   >
                     <span className="agr-opt-n">{i}</span>
-                    <span>{opt}</span>
+                    <span>{t(`q${REF_TO_NUM[q.ref]}Opt${i}`)}</span>
                   </button>
                 ))}
               </div>
@@ -1107,10 +1117,10 @@ export default function AgentGovernanceReadiness() {
                   onClick={() => setIndex(Math.max(0, index - 1))}
                   disabled={index === 0}
                 >
-                  Back
+                  {t("backButton")}
                 </button>
                 <span className="mono" style={{ fontSize: "0.78rem", color: "var(--mute)" }}>
-                  {domain.frameworks.imda}
+                  {t(DOMAIN_IMDA_KEY[domain.id])}
                 </span>
               </div>
             </div>
