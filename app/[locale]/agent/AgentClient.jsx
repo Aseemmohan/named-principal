@@ -183,8 +183,38 @@ const CSS = `
 // riskModel.js's array order is ever revisited.
 const FACTOR_TO_NUM = Object.fromEntries(FACTORS.map((f, i) => [f.id, i + 1]));
 
+// Text-to-key lookup tables. assess() returns obligations/overrides as
+// already-filtered arrays of plain English strings, not stable IDs —
+// the filtering depends on the user's actual answers, so array
+// position after filtering doesn't align with translation key numbers.
+// Matching against the exact verbatim text from riskModel.js (copied
+// character-for-character, including em-dashes) is the only reliable
+// way to translate these without touching the shared file itself.
+const OBLIGATION_TEXT_TO_KEY = {
+  "IMDA Agentic MGF — Dimension 1 (bound the risk) and Dimension 3 (technical controls)": "ob1",
+  "IMDA Agentic MGF — Dimension 2: meaningful human accountability": "ob2",
+  "EU AI Act Article 14 — human oversight; Article 12 — record-keeping": "ob3",
+  "EU AI Act Article 14(4) — ability to intervene or interrupt": "ob4",
+  "EU AI Act Article 15 — accuracy, robustness and cybersecurity": "ob5",
+  "PDPA / GDPR obligations; MAS AIRM where the estate is financial services": "ob6",
+  "ISO/IEC 42001 Annex A — third-party and supplier controls": "ob7",
+  "ISO/IEC 42001 Clause 6.1 and 8.1 — risk assessment and operational control": "ob8",
+  "NIST AI RMF — MANAGE 1, MANAGE 2, MEASURE 2": "ob9",
+};
+const OVERRIDE_WHY_TO_KEY = {
+  "Irreversible actions with no pre-action approval. This is the Replit pattern: an agent deleted a production database despite instructions to change nothing, with no attacker involved.": "ov1",
+  "Shared credentials with an outward action channel. This is the Salesloft-Drift pattern: one compromised credential reached hundreds of downstream environments.": "ov2",
+  "Publicly reachable and able to act outside your boundary. Anyone on the internet can supply its instructions.": "ov3",
+  "Can be invoked by agents outside your control. Attribution to a human principal cannot be maintained.": "ov4",
+  "Privilege plus untrusted input plus an outward channel — the combination behind most documented MCP and agent compromises.": "ov5",
+  "Tools acquired from public marketplaces. The postmark-mcp package shipped fifteen clean releases before adding exfiltration code.": "ov6",
+};
+const TIER_LINE_KEY = { contained: "tierContainedLine", elevated: "tierElevatedLine", high: "tierHighLine", critical: "tierCriticalLine" };
+const TIER_VERDICT_KEY = { contained: "tierContainedVerdict", elevated: "tierElevatedVerdict", high: "tierHighVerdict", critical: "tierCriticalVerdict" };
+
 export default function AgentRiskProfiler() {
   const t = useTranslations("agent");
+  const tf = useTranslations("footer");
   const [name, setName] = useState("");
   const [purpose, setPurpose] = useState("");
   const [v, setV] = useState({});
@@ -292,49 +322,47 @@ export default function AgentRiskProfiler() {
         {shown && (
           <div className="ap-rec" ref={recRef}>
             <div className="ap-rec-top">
-              <p className="ap-rec-kicker">Agent risk record</p>
-              <h2 className="ap-rec-name">{name.trim() || "Unnamed agent"}</h2>
+              <p className="ap-rec-kicker">{t("recKicker")}</p>
+              <h2 className="ap-rec-name">{name.trim() || t("unnamedAgent")}</h2>
               {purpose.trim() && <p className="ap-rec-purpose">{purpose.trim()}</p>}
               <div className="ap-rec-tier">
                 <b>{tierMeta.code}</b>
                 <span className="ap-rec-score">{shown.score} / {shown.max}</span>
               </div>
-              <p className="ap-rec-line">{tierMeta.line}</p>
-              <p className={`ap-verdict ${tierMeta.tone}`}>{tierMeta.verdict}</p>
+              <p className="ap-rec-line">{t(TIER_LINE_KEY[shown.tier])}</p>
+              <p className={`ap-verdict ${tierMeta.tone}`}>{t(TIER_VERDICT_KEY[shown.tier])}</p>
             </div>
 
             {shown.overrides.length > 0 && (
               <div className="ap-block">
-                <h3>Why this tier</h3>
-                <p className="ap-block-note">
-                  These conditions escalate the tier regardless of the score. Each reflects a documented incident pattern.
-                </p>
+                <h3>{t("whyTierH3")}</h3>
+                <p className="ap-block-note">{t("whyTierNote")}</p>
                 {shown.overrides.map((o, i) => (
                   <div className="ap-esc" key={i}>
-                    <b>Escalation to {o.to}</b>
-                    {o.why}
+                    <b>{t("escalationToLabel")} {o.to}</b>
+                    {t(OVERRIDE_WHY_TO_KEY[o.why])}
                   </div>
                 ))}
               </div>
             )}
 
             <div className="ap-block">
-              <h3>Mandatory controls</h3>
-              <p className="ap-block-note">Implement before deployment. References are to the twelve-control framework.</p>
+              <h3>{t("mandatoryControlsH3")}</h3>
+              <p className="ap-block-note">{t("mandatoryControlsNote")}</p>
               {shown.controls.must.map(id => (
                 <div className="ap-ctl" key={id}>
                   <span className="ap-ctl-id">{id}</span>
-                  <span>{CONTROLS[id]}</span>
+                  <span>{t(`ctl${id.replace("-", "")}`)}</span>
                 </div>
               ))}
               {shown.controls.should.length > 0 && (
                 <>
-                  <h3 style={{ marginTop: 22 }}>Recommended</h3>
-                  <p className="ap-block-note">Not blocking, but expected at this tier by most auditors.</p>
+                  <h3 style={{ marginTop: 22 }}>{t("recommendedH3")}</h3>
+                  <p className="ap-block-note">{t("recommendedNote")}</p>
                   {shown.controls.should.map(id => (
                     <div className="ap-ctl opt" key={id}>
                       <span className="ap-ctl-id">{id}</span>
-                      <span>{CONTROLS[id]}</span>
+                      <span>{t(`ctl${id.replace("-", "")}`)}</span>
                     </div>
                   ))}
                 </>
@@ -342,64 +370,50 @@ export default function AgentRiskProfiler() {
             </div>
 
             <div className="ap-block">
-              <h3>Exposed risk categories</h3>
-              <p className="ap-block-note">OWASP Top 10 for Agentic Applications 2026.</p>
+              <h3>{t("exposedRisksH3")}</h3>
+              <p className="ap-block-note">{t("exposedRisksNote")}</p>
               <div className="ap-tags">
                 {shown.asi.map(a => (
-                  <span className="ap-tag" key={a.id}><b>{a.id}</b> {a.name}</span>
+                  <span className="ap-tag" key={a.id}><b>{a.id}</b> {t(a.id.toLowerCase())}</span>
                 ))}
               </div>
             </div>
 
             <div className="ap-block">
-              <h3>Provisions engaged</h3>
-              <p className="ap-block-note">Indicative. Confirm against current text for your jurisdiction and sector.</p>
+              <h3>{t("provisionsH3")}</h3>
+              <p className="ap-block-note">{t("provisionsNote")}</p>
               <ul className="ap-list">
-                {shown.obligations.map((o, i) => <li key={i}>{o}</li>)}
+                {shown.obligations.map((o, i) => <li key={i}>{t(OBLIGATION_TEXT_TO_KEY[o])}</li>)}
               </ul>
             </div>
 
             <div className="ap-block">
-              <h3>Record</h3>
+              <h3>{t("recordH3")}</h3>
               <div className="ap-meta">
-                <div><span>Assessed</span>{fmt(today)}</div>
-                <div><span>Review by</span>{fmt(review)}</div>
-                <div><span>Tier</span>{tierMeta.code}</div>
-                <div><span>Profile</span>{FACTORS.map(f => v[f.id]).join("")}</div>
+                <div><span>{t("assessedLabel")}</span>{fmt(today)}</div>
+                <div><span>{t("reviewByLabel")}</span>{fmt(review)}</div>
+                <div><span>{t("tierLabel")}</span>{tierMeta.code}</div>
+                <div><span>{t("profileLabel")}</span>{FACTORS.map(f => v[f.id]).join("")}</div>
               </div>
             </div>
 
             <div className="ap-block">
-              <h3>Keep this record</h3>
-              <p className="ap-block-note">
-                Optional. This link carries your nine answers and agent name in the URL itself —
-                nothing is sent anywhere by clicking it. It opens the sign-in page for Named
-                Principal's Agent Passport system, where you can choose to save it as a persistent,
-                trackable record. If you don't sign in, nothing is kept.
-              </p>
+              <h3>{t("keepRecordH3")}</h3>
+              <p className="ap-block-note">{t("keepRecordBody")}</p>
               <a className="ap-btn" style={{ display: "inline-block", textDecoration: "none", textAlign: "center" }}
-                href={`/estate/new?a=${encodeProfilerAnswers(v)}&name=${encodeURIComponent(name.trim() || "Unnamed agent")}`}>
-                Save this to your Estate →
+                href={`/estate/new?a=${encodeProfilerAnswers(v)}&name=${encodeURIComponent(name.trim() || t("unnamedAgent"))}`}>
+                {t("saveToEstateLink")}
               </a>
             </div>
           </div>
         )}
 
         <div className="ap-foot">
+          <p>{t("footNote1")}</p>
+          <p>{t("footNote2")}</p>
+          <p>{t("footNote3")}</p>
           <p>
-            This is triage. Nine questions cannot capture a real architecture — the output tells you what
-            to examine properly and which controls to require, not that an agent is safe.
-          </p>
-          <p>
-            Aligned to the OWASP Top 10 for Agentic Applications 2026. To score a discovered vulnerability
-            rather than determine controls before deployment, use the OWASP AI Vulnerability Scoring System.
-          </p>
-          <p>
-            Provided for readiness planning. Not a compliance determination, and not legal advice.
-            Mappings current as at July 2026.
-          </p>
-          <p>
-            © 2026 Aseem Mohan · <a href="/">Organisational assessment</a> · <a href="/privacy">Privacy notice</a>
+            © 2026 Aseem Mohan · <a href="/">{t("footAssessmentLink")}</a> · <a href="/privacy">{tf("privacy")}</a>
           </p>
         </div>
       </div>
